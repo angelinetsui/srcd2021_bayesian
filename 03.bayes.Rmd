@@ -1,0 +1,88 @@
+---
+title: "Session 3: Bayesian mixed effects regression"
+author: 'Angeline Tsui'
+date: '`r Sys.Date()`'
+output:
+  tufte::tufte_html:
+    toc: yes
+    toc_depth: 1
+  tufte::tufte_handout:
+    citation_package: natbib
+    latex_engine: pdflatex
+  tufte::tufte_book:
+    citation_package: natbib
+    latex_engine: pdflatex
+link-citations: yes
+bibliography: library.bib
+---
+
+```{r, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo=TRUE, 
+               warning=FALSE, message=FALSE, 
+               cache=FALSE)
+```
+
+This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), and all documents can be found [here](https://).
+
+# Introduction
+
+This short tutorial covers some basic concepts of mixed-effect models and how to run Bayesian mixed-effect model in R. 
+
+<!-- We will use the following tools: -->
+
+<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
+
+## Learning goals
+
+By the end of this class, you will have a basic understanding of the following:
+
+* **A mixed-effect model** 
+* **The differences between fixed- and random-effect** 
+* **The advantage of running a Bayesian mixed-effect model** 
+* **Running Bayesian mixed-effect model using brms in R** 
+
+# Quick overview: Regression 
+
+## What is a regression?
+
+We often use a regression to model a relationship between the independent variable $IV_i$ and dependent variable $DV$. For example, a simple form of a linear regression model can be expressed using the following equation:
+
+$$
+\text{DV} = \beta_0 + \beta_i{IV_i} + \epsilon 
+$$
+The $\beta_0$ is the intercept of the regression model, indicating the expected value of $DV$ when all $IV_i$ are zero. To understand the relationship between $DV$ and a particular $IV$, we can examine the regression coefficients: $\beta_i$. The $\beta_i$ indicates how $DV$ change when there is a one unit of change in $IV_i$. Thus, the $\beta_i$ indicates the strength and direction of the relationship between the $DV$ and $IV_i$.
+
+Under the frequentest approach, we determine whether the relationship between the $DV$ and $IV_i$ is statistically significant and also use the regression model to make prediction of the $DV$ value based on specific amount of $IV_i$ values.  
+
+Typically regresion models have several assumptions, they include:
+1. Linearity between the $DV$ and $IV_i$
+2. Residuals are uncorrelated with one another
+3. Residuals have an expected value of zero
+4. Variance of residuals is constant across $IV_i$, also known as homoscedasticity
+5. No multicollinearity
+6. (Optional) Residuals are normally distributed
+
+In Developmental research, we often collect data repeatedly from one individual (e.g., one child) as we are interested in the development of the children's ability over time. We cannot simply use regression models to analyze our data because we necessarily violate assumption 2: Residuals are uncorrelated with one another. In this case, we can use mixed-effect model to analyze this kind of data.
+
+# Mixed-effect under Frequestist approach
+
+## What is a mixed-effect model?
+
+Mixed-effect model is a statistical model that contains both fixed effects and random effects, and is widely used to model repeated measurements. Fixed effect are the typical $IV_i$ that we control for in a regression model, thus fixed effect are the population average effect of the $IV_i$ to the $DV$. To model the non-independece between DV within a repeated measure design, we can add random effects that capture the idiosyncratic individual differences between participants. Of course, random effects are not only bounded by the level of participants, but also can be bounded by the level of other grouping factors (e.g., laboratories). In general, random effects model the variations of the observations at the level of some grouping factors. 
+
+Let us take a look at the [ManyBabies 1 (MB1) dataset](https://github.com/manybabies/mb1-analysis-public.git) for an illustration of how mixed-effect model can help us model repeated measurement.
+
+In MB1, we investigated whether monolingual infants across 67 laboratories show a preference for listening to infant-directed speech (baby talk; IDS) over adult-directed speech (ADS). In this experiment, we tested infants with 16 trials where half of the trials were in IDS and the other half were in ADS. Given that repeated measure design, the mixed-effect model is a ideal method to control for the random effects of individual infants' preference for IDS over ADS. Furthermore, as we will see in the dataset, there are a lot of missing data as not all infants can complete all 16 trials. In traditional repeated ANOVA, we will either need to discard participants with missing data or use imputation method to fill out missing data. In contrast, we do not need to do that in a mixed-effect model as this model allows missing data by allocating less weight to participants with less data in the model. 
+
+MB1 data analysis
+Step 1: Packages
+Step 2: Data cleaning
+Step 3: Visualization
+Step 4: Analyzing the data
+4a: Intercept only model
+4b: Adding predictors (fixed level first?)
+4c: Adding random level ?
+
+
+
