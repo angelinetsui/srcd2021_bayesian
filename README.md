@@ -1,1 +1,1 @@
-# srcd2021_bayesian
+# SRCD 2021 bayesian workshop
