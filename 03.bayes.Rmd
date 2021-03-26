@@ -76,13 +76,85 @@ Let us take a look at the [ManyBabies 1 (MB1) dataset](https://github.com/manyba
 In MB1, we investigated whether monolingual infants across 67 laboratories show a preference for listening to infant-directed speech (baby talk; IDS) over adult-directed speech (ADS). In this experiment, we tested infants with 16 trials where half of the trials were in IDS and the other half were in ADS. Given that repeated measure design, the mixed-effect model is a ideal method to control for the random effects of individual infants' preference for IDS over ADS. Furthermore, as we will see in the dataset, there are a lot of missing data as not all infants can complete all 16 trials. In traditional repeated ANOVA, we will either need to discard participants with missing data or use imputation method to fill out missing data. In contrast, we do not need to do that in a mixed-effect model as this model allows missing data by allocating less weight to participants with less data in the model. 
 
 MB1 data analysis
-Step 1: Packages
-Step 2: Data cleaning
-Step 3: Visualization
-Step 4: Analyzing the data
-4a: Intercept only model
-4b: Adding predictors (fixed level first?)
-4c: Adding random level ?
+
+### Step 1: Packages
+```{r}
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+```
+
+### Step 2: Data import and cleaning
+
+In this analysis, let us only focus on the laboratories that used Headturn procedure (HPP) in the analysis for a simple illstration
+
+```{r}
+mb1_data <- read_csv("https://raw.githubusercontent.com/manybabies/mb1-analysis-public/master/processed_data/03_data_trial_main.csv") %>% 
+            filter(method == "hpp") %>%  #only look at HPP data
+            drop_na(.) %>%  #let us drop NA for simplicity
+            mutate('Language background' = as.factor(ifelse(nae == T, 'North American English', 'non North American English'))) #rename nae for better labeling
+       
+```
+
+
+### Step 3: Visualization
+
+Let us look at the data and see infants' preference for IDS over ADS across different age and language backgrounds.
+
+```{r}
+mb1_data$age_group <- factor(mb1_data$age_group, 
+                             levels = c("3-6 mo", "6-9 mo", "9-12 mo", "12-15 mo")) #fixing the order of age group
+
+
+ggplot(data = mb1_data, aes(x = trial_num, y = looking_time, color = trial_type)) +
+  geom_point(alpha = 0.03) +
+  geom_smooth(method = "lm") +
+  facet_wrap(`Language background`~age_group, ncol = 3, nrow = 3) +
+  ylab("Looking time") +
+  xlab("Trial number") + 
+  scale_color_discrete(name = 'Test Trial Type', limits = c("IDS", "ADS")) + #relabeling the legend and make IDS as the reference level
+  theme_classic()
+```
+
+We can notice a few things:
+1) Older infants tend to look less than younger infants (at least for North American English infants)
+2) All infants look less over-time, but older infants appear to have a faster rate of looking time decline than younger infants.
+2) The gap between IDS and ADS is larger for older infants, suggesting that IDS preference is stronger for older infants. 
+3) North American English infants generally look longer to the the stimuli (North American English speech) than nin North American English infants
+4) The gap between IDS and ADS is larger for North American English infants in comparison to non North American English infants, suggesting that North American English infants may show stronger IDS preference than non North American English infants.
+
+### Step 4: Analyzing the data
+
+For simplicity, we focus on the random effects at the infant level (group) in this analysis. Based on the plot above, there are possibilities that infants differ from each other on (i) the magnitude of IDS preference (ii) rate of looking time decline over time. So in the following analyses, we would adopt the "Keep it maximal" approach (Barr et al., 2013) where we will include the maximal random effects structure justified by the design. So we will try including an interaction term between IDS preference and rate of looking time decline as a random slope at the infant group level. 
+
+On the other hand, we will control for the main fixed effects: age in months, trial type (IDS preference), trial number, trial order, language background and gender in the analysis. As these main effects can also interact with the IDS preference (i.e., these factors can influence the magnitude of IDS preference), we will also model the interaction effects of the main fixed-effects and IDS preference as well. 
+
+In the following model, our DV is a log-transformed looking time following Csibra et al (2016) suggestion as well
+
+$$
+\text{log looking time} = 1 + 
+\text{age * IDS} + 
+\text{trial number * IDS} + 
+\text{trial order * IDS} + 
+\text{language background * IDS} + 
+\text{gender * IDS} + 
+(1 + \text{trial number} * \text{IDS} | \text{infant})
+$$
+
+Lmer model
+```{r}
+mb1_data <- mb1_data %>% 
+            mutate(center_age_mo = as.numeric(scale(age_mo, scale = FALSE)),
+                   center_trial_num = as.numeric(scale(trial_num, scale = FALSE)),
+                   center_trial_order = as.numeric(scale(trial_order, scale = FALSE)),
+                   trial_type = as.factor(trial_type),
+                   log_look_time = log(looking_time)) %>% 
+  drop_na(.)
+
+
+
+Freq_model <- lmer(log_look_time ~ 1 +  center_age_mo * trial_type + center_trial_num * trial_type + center_trial_order * trial_type + nae * trial_type + gender * trial_type + (1 | center_trial_num * trial_type), data = mb1_data) ## MH: I keep having an error "Error: Invalid grouping factor specification, center_trial_num * trial_type". I looked online and it may be related to NA values in the centered variable but I have used drop_na to remove NA and I checked the values for the variable, there is no NA there. I need help.
+```
 
 
 
