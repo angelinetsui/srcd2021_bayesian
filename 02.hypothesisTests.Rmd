@@ -1,0 +1,70 @@
+---
+title: "Session 2: Hypothesis Testing using Bayes Factors"
+author: 'MH Tessler'
+date: '`r Sys.Date()`'
+output:
+  tufte::tufte_html:
+    toc: yes
+    toc_depth: 1
+  tufte::tufte_handout:
+    citation_package: natbib
+    latex_engine: pdflatex
+  tufte::tufte_book:
+    citation_package: natbib
+    latex_engine: pdflatex
+link-citations: yes
+bibliography: library.bib
+---
+
+```{r, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo=TRUE, 
+               warning=FALSE, message=FALSE, 
+               cache=FALSE)
+```
+
+This document is developed by [MH Tessler](mailto:michael.h.tessler@gmail.com), and all documents can be found [here](https://).
+
+# Introduction
+
+This short tutorial covers some basic concepts of hypothesis testing and how to calculate Bayes Factors in R.
+
+<!-- We will use the following tools: -->
+
+<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
+
+## Learning goals
+
+By the end of this session, you will have a basic understanding of the following:
+
+* **Bayesian perspective on hypothesis testing** 
+* **Bayes Factors quantify evidence in support (or against) a hypothesis** 
+* **How to compute a Bayes Factor in R** 
+* **The sensitivity of the Bayes Factor to the prior distribution (on parameters)** 
+
+# Testing hypothesis
+
+As developmental psychologists, we are often in the business of designing experiments to test hypotheses, but what do we mean exactly by "test hypotheses"? Classically, the (frequentist) statistical approach to hypothesis testing concerns procedures that result in categorical decision, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made currently. The most popular decision procedures appeal to the statistic known as the "p-value", which quantifies some measure of the probability of the data observed in the experiment assuming a hypothesis is true. The procedure typically goes that when the p-value is sufficiently small (e.g., $< 0.05$), the decision can be made to reject the hypothesis.
+
+The Bayesian approach to hypothesis testing is slightly different. Rather than be concerned with categorical decisions, Bayesian methods aim to quantify the amount of evidence in favor or against a hypothesis. Decision rules can then be applied to this quantification of evidence (e.g., if the amount of evidence in support of a hypothesis is sufficiently great, we might accept the hypothesis as true), but they can also be evaluated on their own terms (e.g., a hypothesis being 10x as likely as another is not as compelling as a hypothsis that is 100x as likely).
+
+# Bayes Factors
+
+Recall from Session 1, the definition of Bayes Rule / Theorem:
+
+$$
+P(H \mid D) \propto P(D \mid H) \times P(H)
+$$
+
+For purposes of hypothesis testing, we are generally interested in comparing the relatively probability of one hypothesis vs. another. In other words, we are interesting in a *probability ratio* (or, odds ratio):
+
+$$
+\frac{P(H_1 \mid D)}{P(H_2 \mid D)} \propto \frac{P(D \mid H_1)}{P(D \mid H_2)} \times \frac{P(H_1)}{P(H_2)}
+$$
+## Posterior Model Odds
+
+The term on the left-hand side ($\frac{P(H_1 \mid D)}{P(H_2 \mid D)}$) refers to the relative probability of $H_1$ in comparison to $H_2$ in light of the observed data $D$. This ratio, termed the *posterior model odds*, is the kind of quantity we would -- in an ideal world -- like to use to grow scientific knowledge: pursuing the hypotheses that are most likely given the data.
+
+The trouble with the *posterior model odds*, as revealed by the formula above, is that they depend upon the *prior model odds*: $\frac{P(H_1)}{P(H_2)}$. The prior model odds refer to how likely these hypothesis are *a priori*, before having seen the data. This ratio is very difficult to estimate or agree upon with other scientists: Perhaps you think $H_1$ and $H_2$ are roughly equally plausible *a priori* (e.g., $P(H_1) = P(H_2) = 0.5$), but your reviewer thinks $H_2$ is absurd and unlikely ($P(H_2) = 0.01$). Then the posterior odds could differ from reader-to-reader, depending on their prior beliefs about the various hypotheses. Such divergences obviously exist and are reasonable, but they best left to informal discussions rather than serve as contentious factors in how you evaluate the data. (However, see Wagenmakers et al. (2011) *Why psychologists must change the way they analyze their data: The case of psi: Comment on Bem (2011).* for a reasonable application of posterior model odds.)
+
+
