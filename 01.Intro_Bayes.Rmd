@@ -1,0 +1,65 @@
+---
+title: "Session 1: Introduction to Bayesian Inference"
+author: 'Angeline Tsui & MH Tessler'
+date: '`r Sys.Date()`'
+output:
+  tufte::tufte_html:
+    toc: yes
+    toc_depth: 1
+  tufte::tufte_handout:
+    citation_package: natbib
+    latex_engine: pdflatex
+  tufte::tufte_book:
+    citation_package: natbib
+    latex_engine: pdflatex
+link-citations: yes
+bibliography: library.bib
+---
+
+```{r, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo=TRUE, 
+               warning=FALSE, message=FALSE, 
+               cache=FALSE)
+```
+
+This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com) and [MH Tessler](mailto:michael.h.tessler@gmail.com), and all documents can be found [here](https://).
+
+# Introduction
+
+This short tutorial covers some basic concepts of Bayesian inference. 
+
+<!-- We will use the following tools: -->
+
+<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
+
+## Learning goals
+
+By the end of this class, you will have a basic understanding of the following:
+
+* **Probability in the Frequestist vs Probability in the Bayesian world** 
+* **Bayes' Theorem** 
+* **Three important elements of Bayesian statistics** 
+
+# Probability in the Frequestist vs Probability in the Bayesian world
+
+## Probability in the Frequestist world
+Probability is often described as the frequency of events over some number of repeated trials. A classic example about probability is flipping a coin with two sides. What is the probability of getting 2 heads if we flip the coins 10 times? Answer: P(2 H out of 10 trials) = 2/10 = 0.2. 
+
+This concept of repeating the events is fundamental to the Frequentist statistics. In the Frequestist world, probability is a long-run concept and it typically refers to the frequency of events when we repeat the trials to infinity. Let us consider the coin-flipping example. If we want to determine if the coin is a fair coin, we will estimate the probability of observing heads, after we flip the coin with an infinite number of times. 
+
+## Probability in the Bayeisan world
+
+However, in Bayesian world, probability is often a measure of uncertainty. It does not have the concept about long-run. For example, we want to estimate the probability of raining tomorrow in California during summer time. Because we just do not know what is the probability, within the Bayeisan framework, we will estimate probability by representing our uncertainty in terms of probability distribution.
+
+** Probability distribution (AST: need to make some graphs here)
+
+## Bayes' theorem
+
+First of all, let us revisit the concep of conditional probability.
+
+Conditional probabilty....
+
+Bayes' Theorem
+
+Link Bayes' Theorem to Bayes' data analysis
