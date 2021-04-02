@@ -69,15 +69,15 @@ P(A \mid B) = \frac{P(A \cap B)}{P(B)}
 $$
 For example, Let us assume for the following:
 
-P(A) is the probability of given dormitory housing at the university = 0.2.
+P(A) is the probability of receiving dormitory housing at the university = 0.2.
 P(B) is the probability of getting accepted in the graduate school = 0.6.
-P(A & B) = probability of given dormitory housing and being accepted in the graduate school = P(A) * P(B) = 0.2*0.6 = 0.12.
+P(A & B) = probability of receiving dormitory housing and being accepted in the graduate school = P(A) * P(B) = 0.2*0.6 = 0.12.
 However, we know that the probability of an individual that is given a domitory housing will be higher, if the individual is accepted in the graduate school. So we want to calculate P(A | B).
 P(A | B) = P(A & B)/P(B) = 0.12/0.6 = 0.2.
 
 ### Bayes' Theorem
 
-Conditional probability forms the basics of Bayes' Theorem. Let us rearrange some equations. 
+Conditional probability forms the basis of Bayes' Theorem. Let us rearrange some equations. 
 
 This is the conditional probability of A, given B.
 $$
@@ -85,7 +85,7 @@ P(A \mid B) = \frac{P(A \cap B)}{P(B)}
 $$
 Thus, we can rewrite the equation and we know that the P(A & B) can be expressed in the following way:
 $$
-{P(A \cap B)} = P(A \mid B) * {P(B)}
+P(A \mid B) * {P(B)} = {P(A \cap B)}
 $$
 On the other hand, let us think of the conditional probability of B, given A
 $$
@@ -93,17 +93,17 @@ P(B \mid A) = \frac{P(A \cap B)}{P(A)}
 $$
 We can also rewrite the equation and we know that the P(A & B) can be expressed in the following way:
 $$
-{P(A \cap B)} = P(B \mid A) * {P(A)}
+P(B \mid A) * {P(A)} = {P(A \cap B)} 
 $$
 In sum, 
 $$
 {P(A \cap B)} = P(A \mid B) * {P(B)} = P(B \mid A) * {P(A)}
 $$
-This forms the Bayes' theorem where:
+We can simply rearrange the terms to arrive at Bayes' theorem:
 $$
 P(B \mid A) = \frac{P(A \mid B) * {P(B)}}{P(A)}
 $$
-In short, Bayes' Theorem is a way of calculating “reversed” conditional probabilities. It is very useful for understanding what we want to measure in statistics within the Frequestist and Bayesian frameworks.
+In short, Bayes' Theorem is a way of calculating "inverse" conditional probabilities. It is very useful for understanding what we want to measure in statistics within the Frequestist and Bayesian frameworks.
 
 ### Data analysis
 
@@ -112,7 +112,7 @@ In the Frequestist framework, we often run hypothesis testing and determine stat
 Thus, in frequestist framework, we are calculating the probability of observing some data, conditional on the probability of null hypothesis. In other words, we can rewrite this as:
 
 $$
-P value = P(data \mid h0)
+\text{p-value}= P(data \mid h0)
 $$
 However, researchers are often interested in finding the probability of a hypothesis, conditional on the observed data: P(h0 | data). So what we have been doing in the frequestist framework do not necessarily provide us with what we need.
 
