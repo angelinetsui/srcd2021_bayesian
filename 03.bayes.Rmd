@@ -23,7 +23,7 @@ opts_chunk$set(echo=TRUE,
                cache=FALSE)
 ```
 
-This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), and all documents can be found [here](https://).
+This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), and all documents can be found [here](https://github.com/angelinetsui/srcd2021_bayesian.git).
 
 # Introduction
 
@@ -55,7 +55,7 @@ The $\beta_0$ is the intercept of the regression model, indicating the expected 
 
 Under the frequentest approach, we determine whether the relationship between the $DV$ and $IV_i$ is statistically significant and also use the regression model to make prediction of the $DV$ value based on specific amount of $IV_i$ values.  
 
-Typically regresion models have several assumptions, they include:
+Typically regression models have several assumptions, they include:
 1. Linearity between the $DV$ and $IV_i$
 2. Residuals are uncorrelated with one another
 3. Residuals have an expected value of zero
@@ -65,7 +65,7 @@ Typically regresion models have several assumptions, they include:
 
 In Developmental research, we often collect data repeatedly from one individual (e.g., one child) as we are interested in the development of the children's ability over time. We cannot simply use regression models to analyze our data because we necessarily violate assumption 2: Residuals are uncorrelated with one another. In this case, we can use mixed-effect model to analyze this kind of data.
 
-# Frequestist approach: Mixed-effect under 
+# Frequestist approach: Mixed-effect model
 
 ## What is a mixed-effect model?
 
@@ -128,7 +128,7 @@ We can notice a few things:
 
 ### Step 4: Analyzing the data
 
-For simplicity, we focus on the random effects at the infant level (group) in this analysis. Based on the plot above, there are possibilities that infants differ from each other on (i) the magnitude of IDS preference (ii) rate of looking time decline over time. So in the following analyses, we would adopt the "Keep it maximal" approach (Barr et al., 2013) where we will include the maximal random effects structure justified by the design. So we will try including an interaction term between IDS preference and rate of looking time decline as a random slope at the infant group level. 
+For simplicity, we focus on the random effects at the infant level (group) in this analysis. Based on the plot above, there are possibilities that infants differ from each other on (i) the magnitude of IDS preference (ii) rate of looking time decline over time. So in the following analyses, we would adopt the "Keep it maximal" approach (Barr et al., 2013) where we will include the maximal random effects structure justified by the design. As a first run, we first include an interaction term between IDS preference and rate of looking time decline as a random slope at the infant group level. However, as noted later, the interaction term cannot be modeled as a random effect because of singularity issue. So we remove the interaction term and only model the two main effects for the magnitude of IDS preference and looking time decline in the following model. 
 
 On the other hand, we will control for the main fixed effects: age in months, trial type (IDS preference), trial number, trial order, language background and gender in the analysis. As these main effects can also interact with the IDS preference (i.e., these factors can influence the magnitude of IDS preference), we will also model the interaction effects of the main fixed-effects and IDS preference as well. 
 
@@ -139,8 +139,7 @@ $$
 \text{age * IDS} + 
 \text{trial number * IDS} + 
 \text{trial order * IDS} + 
-\text{language background * IDS} + 
-\text{gender * IDS} + 
+\text{language background + IDS} + 
 (1 + \text{trial number} * \text{IDS} | \text{infant})
 $$
 
@@ -157,7 +156,7 @@ mb1_data <- mb1_data %>%
 
 
 
-Freq_model <- lmer(log_look_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 | center_trial_num:trial_type), control=lmerControl(optimizer="bobyqa"), #using an optimizer that aligns with the version in MB1 and MB1B
+Freq_model <- lmer(log_look_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 + center_trial_num+trial_type|subid), control=lmerControl(optimizer="bobyqa"), #using an optimizer that aligns with the version in MB1 and MB1B
                    data = mb1_data) 
 
 summary(Freq_model)
@@ -178,7 +177,7 @@ library(rstanarm)
 Before running a model with prior, let us run the model without the default prior.
 
 ```{r}
-Bayes_model_default <- brm(looking_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 | center_trial_num:trial_type),
+Bayes_model_default <- brm(looking_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 + center_trial_num + trial_type | subid),
                    family = lognormal(),
                    data = mb1_data,
                    warmup = 1000, 
@@ -187,7 +186,7 @@ Bayes_model_default <- brm(looking_time ~ center_age_mo:trial_type + center_tria
                    chains = 2, 
                    seed = 123,
                    save_all_pars = TRUE, 
-                   control = list(adapt_delta = 0.95),
+                   control = list(adapt_delta = 0.999),
                    file="mb1_bayes.mod")
 
 print(summary(Bayes_model_default), digits = 3)
@@ -197,7 +196,7 @@ Let us visualize the posterior distribution of some parameters.
 ```{r}
 posterior_default <- as.matrix(Bayes_model_default)
 
-mcmc_areas(posterior_default,
+mcmc_areas(Bayes_model_default,
            pars = c("b_trial_type:center_age_mo",
                     "b_center_trial_num:trial_type",
                     "b_trial_type:center_trial_order",
@@ -206,7 +205,6 @@ mcmc_areas(posterior_default,
   ggtitle("Posterior distributions", 
           "with medians and 95% credit intervals")
 
-pp_check(Bayes_model_default) #the posterior predictive checks do not look good at all.....
 ```
 This plot shows the densities of four important parameter estimates. For each density, the dark blue line represents the point estimate (median) and light blue area represents the 95% credibility intervals. We can use this to get a sense of which parameter(s) has/have a posterior distribution(s) that does not contain zero and how wide the distribution (flat or pointy). 
 
@@ -230,7 +228,7 @@ priors <- c(prior(normal(2, 1), class = Intercept),
 ```
 
 ```{r}
-Bayes_model_priors <- brm(looking_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 | center_trial_num:trial_type),
+Bayes_model_priors <- brm(looking_time ~ center_age_mo:trial_type + center_trial_num:trial_type + center_trial_order:trial_type + nae:trial_type + gender:trial_type + (1 + center_trial_num +trial_type |subid),
                    family = lognormal(),
                    prior = priors,
                    data = mb1_data,
@@ -240,9 +238,27 @@ Bayes_model_priors <- brm(looking_time ~ center_age_mo:trial_type + center_trial
                    chains = 2, 
                    seed = 123,
                    save_all_pars = TRUE, 
-                   control = list(adapt_delta = 0.99),
+                   control = list(adapt_delta = 0.999),
                    file="mb1_bayes_priors.mod")
 
 print(summary(Bayes_model_priors), digits = 3)
 ```
 
+## Step 4: Posterior predictive check
+Posterior predictive check allows us to examine how well the model fits the data. It assesses the deviation between the data generated from the model and the actual data. 
+
+Let us look at the posterior predictive check for the default model
+```{r}
+pp_check(Bayes_model_default)
+```
+Will the posterior predictive check be better after we have incorperated the priors?
+```{r}
+pp_check(Bayes_model_priors)
+```
+
+It doesn't look like it helps. So it may be a misspecification of the likelihood distribution. Let us look at the distribution of the looking time.
+```{r}
+hist(mb1_data$looking_time)
+hist(mb1_data$log_look_time)
+```
+The log-transformed distribution is still not normal. This may be the reason why we were not able to have a good match between model fit and actual data. One new approach is to include a [mixture distribution for the looking time distribution](https://rdrr.io/cran/brms/man/mixture.html)

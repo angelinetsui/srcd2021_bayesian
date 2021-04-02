@@ -23,15 +23,13 @@ opts_chunk$set(echo=TRUE,
                cache=FALSE)
 ```
 
-This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com) and [MH Tessler](mailto:michael.h.tessler@gmail.com), and all documents can be found [here](https://).
+This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com) and [MH Tessler](mailto:michael.h.tessler@gmail.com), and all documents can be found [here](https://github.com/angelinetsui/srcd2021_bayesian.git).
 
-# Introduction
+# Introduction and installation of the brms package in R
 
 This short tutorial covers some basic concepts of Bayesian inference. 
 
-<!-- We will use the following tools: -->
-
-<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
+We will use brms to illstrate some examples of running statistical modes in our workshop. brms is based on Stan and you will need to install C++ compiler properly. Please follow the instruction [here](https://github.com/paul-buerkner/brms) steps by steps. Note that the configuration of C++ Toolchain in Windows and Mac is different. For Mac, you need to install Xcode.
 
 ## Learning goals
 
@@ -39,7 +37,7 @@ By the end of this class, you will have a basic understanding of the following:
 
 * **Probability in the Frequestist vs Probability in the Bayesian world** 
 * **Bayes' Theorem** 
-* **Three important elements of Bayesian statistics** 
+* **Three important elements of Bayesian statistics: prior, likelihood & posterior** 
 
 # Probability in the Frequestist vs Probability in the Bayesian world
 
@@ -50,16 +48,74 @@ This concept of repeating the events is fundamental to the Frequentist statistic
 
 ## Probability in the Bayeisan world
 
-However, in Bayesian world, probability is often a measure of uncertainty. It does not have the concept about long-run. For example, we want to estimate the probability of raining tomorrow in California during summer time. Because we just do not know what is the probability, within the Bayeisan framework, we will estimate probability by representing our uncertainty in terms of probability distribution.
-
-** Probability distribution (AST: need to make some graphs here)
+However, in Bayesian world, probability is often a measure of uncertainty. It does not have the concept about long-run. For example, we want to estimate the probability of raining tomorrow in California during summer time. Because we just do not know what is the probability, within the Bayesian framework, we will estimate probability by representing our uncertainty in terms of probability distribution.
 
 ## Bayes' theorem
 
-First of all, let us revisit the concep of conditional probability.
+First of all, let us revisit the concept of conditional probability.
 
-Conditional probabilty....
+### Conditional probability is the probability of A given B.  
 
-Bayes' Theorem
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+For example, Let us assume for the following:
 
-Link Bayes' Theorem to Bayes' data analysis
+P(A) is the probability of given dormitory housing at the university = 0.2.
+P(B) is the probability of getting accepted in the graduate school = 0.6.
+P(A & B) = probability of given dormitory housing and being accepted in the graduate school = P(A) * P(B) = 0.2*0.6 = 0.12.
+However, we know that the probability of an individual that is given a domitory housing will be higher, if the individual is accepted in the graduate school. So we want to calculate P(A | B).
+P(A | B) = P(A & B)/P(B) = 0.12/0.6 = 0.2.
+
+### Bayes' Theorem
+
+Conditional probability forms the basics of Bayes' Theorem. Let us rearrange some equations. 
+
+This is the conditional probability of A, given B.
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+Thus, we can rewrite the equation and we know that the P(A & B) can be expressed in the following way:
+$$
+{P(A \cap B)} = P(A \mid B) * {P(B)}
+$$
+On the other hand, let us think of the conditional probability of B, given A
+$$
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+$$
+We can also rewrite the equation and we know that the P(A & B) can be expressed in the following way:
+$$
+{P(A \cap B)} = P(B \mid A) * {P(A)}
+$$
+In sum, 
+$$
+{P(A \cap B)} = P(A \mid B) * {P(B)} = P(B \mid A) * {P(A)}
+$$
+This forms the Bayes' theorem where:
+$$
+P(B \mid A) = \frac{P(A \mid B) * {P(B)}}{P(A)}
+$$
+In short, Bayes' Theorem is a way of calculating “reversed” conditional probabilities. It is very useful for understanding what we want to measure in statistics within the Frequestist and Bayesian frameworks.
+
+### Data analysis
+
+In the Frequestist framework, we often run hypothesis testing and determine statistical significance by comparing p values with an alpha level (0.05). P value is the probability of obtaining results at least as extreme as the observed results of a statistical hypothesis test, assuming that the null hypothesis is true.
+
+Thus, in frequestist framework, we are calculating the probability of observing some data, conditional on the probability of null hypothesis. In other words, we can rewrite this as:
+
+$$
+P value = P(data \mid h0)
+$$
+However, researchers are often interested in finding the probability of a hypothesis, conditional on the observed data: P(h0 | data). So what we have been doing in the frequestist framework do not necessarily provide us with what we need.
+
+Within the Bayesian framework, we can make use of the Bayes' Theorem to find out the P(h0 | data.)
+$$
+P(h0 | data) = \frac{P(data | ho) * P(h0)}{P(data)}
+$$
+P(data | h0) is the likelihood distribition of the data, conditional on the null hypothesis
+P(h0) is the prior distribution of the null hypothsis
+P(data) is the marginal distribution
+P(h0 | data) is the posterior distribution
+
+## How prior and likelihood together affect the posterior?
+MH: can you add your plots here? Like those in your session 19 Rmd. One concern is that I don't see the "likelihood" distribution in the Rmd (sorry that if I have missed it), so if you can add this back to the plots and make three plots (uninformative prior, weakly informative prior and very informative prior) and illustrates how these prior affect the posterior distribution, with the same likelihood distribution here, it will be great.
