@@ -13,7 +13,6 @@ output:
     citation_package: natbib
     latex_engine: pdflatex
 link-citations: yes
-bibliography: library.bib
 ---
 
 ```{r, echo=FALSE}
@@ -29,11 +28,11 @@ This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com) and
 
 This short tutorial covers some basic concepts of Bayesian inference. 
 
-We will use brms to illstrate some examples of running statistical modes in our workshop. brms is based on Stan and you will need to install C++ compiler properly. Please follow the instruction [here](https://github.com/paul-buerkner/brms) steps by steps. Note that the configuration of C++ Toolchain in Windows and Mac is different. For Mac, you need to install Xcode.
+We will use the package `brms` to illstrate some examples of running statistical modes in our workshop. `brms` is based on the probabilistic programming language Stan and you will need to install an underlying C++ compiler. Please follow the instructions [here](https://github.com/paul-buerkner/brms#faq). For Windows, you can install [Rtools](https://cran.r-project.org/bin/windows/Rtools/). For Mac, you need to install Xcode (available from the Mac App Store).
 
 ## Learning goals
 
-By the end of this class, you will have a basic understanding of the following:
+By the end of this session, you will have a basic understanding of the following:
 
 * **Probability in the Frequestist vs Probability in the Bayesian world** 
 * **Bayes' Theorem** 
@@ -41,14 +40,23 @@ By the end of this class, you will have a basic understanding of the following:
 
 # Probability in the Frequestist vs Probability in the Bayesian world
 
-## Probability in the Frequestist world
-Probability is often described as the frequency of events over some number of repeated trials. A classic example about probability is flipping a coin with two sides. What is the probability of getting 2 heads if we flip the coins 10 times? Answer: P(2 H out of 10 trials) = 2/10 = 0.2. 
+What is a probability? If you ask a mathematician, they will tell you "a probability is a number between 0 and 1". This may be satisfactory for those who care only about numbers, but what does a probability represent *in the world*?
 
-This concept of repeating the events is fundamental to the Frequentist statistics. In the Frequestist world, probability is a long-run concept and it typically refers to the frequency of events when we repeat the trials to infinity. Let us consider the coin-flipping example. If we want to determine if the coin is a fair coin, we will estimate the probability of observing heads, after we flip the coin with an infinite number of times. 
+Philosophers of mathematics and probability divide into two camps when it comes to answering this question: the Frequentists and the Bayesians (sometimes also called the *subjectivists*). The distinction is not only a philosophical one. In fact, the different definitions of probability give rise to different fields of statistics -- Frequentists Statistics and Bayesian Statisics -- which  has practical implications for our everyday lives as scientists. But first, let's stick at the philosophical level.
+
+## Probability in the Frequestist world
+
+For a Frequentist, a probability describes the *long run relative frequency of events*. For example, if I have a special coin and I say the probability that this coin lands on Heads is 0.2, what a frequentist takes that to mean is: *if I were to flip this coin many many times, then the relative frequency of the coin landing on Heads will be 20%*. 
+
+This concept of repeating the events is fundamental to Frequentist Statistics. In the Frequestist world, probability is a long-run concept and it refers to the frequency of events when we repeat the trials (or, the generative process) to infinity. One of the most fundamental assumptions is that we can repeat the process (or the trials) in a *similar* manner for a long time. 
+
+This assumption runs into immediate problems when a Frequentist tries to describe the probability of a singular event: For example, the probability of it raining on April 8, 2021 in Palo Alto, California is a singular event in time. How do we define what counts as a sufficiently similar event? It also has trouble when describing probabilities of probabilities. For example, what is the probability that my special coin has a probability of 0.2 of landing of Heads?
 
 ## Probability in the Bayeisan world
 
-However, in Bayesian world, probability is often a measure of uncertainty. It does not have the concept about long-run. For example, we want to estimate the probability of raining tomorrow in California during summer time. Because we just do not know what is the probability, within the Bayesian framework, we will estimate probability by representing our uncertainty in terms of probability distribution.
+The Bayesian perspective does not rely on assuming we can repeat identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities. 
+
+For example, we can estimate the probability of rain April 8, 2021 in Palo Alto, California using predictive models that encode our scientific knowledge of how whether systems evolve. These in turn might be guided by historical data (a kind of frequentist idea), but they may also include structured, theoretical knowledge about climate and weather. 
 
 ## Bayes' theorem
 
