@@ -117,7 +117,7 @@ $$
 $$
 However, scientists are often interested in finding out whether or not a hypothesis is true (or, the probability that a hypothesis is true), conditional on the observed data: P(h | data). This is of course not what the p-value describes.
 
-Within the Bayesian framework, we can make use of the Bayes' Theorem to find out P(h0 | data).
+Within the Bayesian framework, we can make use of the Bayes' Theorem to find out P(h | data).
 
 $$
 P(h | data) = \frac{P(data | h) * P(h)}{P(data)}
@@ -178,7 +178,8 @@ data.frame(
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An uninformed prior distribution")
+  ggtitle("An uninformed prior distribution")+
+  theme_classic()
 
 ```
 
@@ -195,7 +196,8 @@ data.frame(
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An informed prior distribution")
+  ggtitle("An informed prior distribution") +
+  theme_classic()
 
 ```
 
@@ -221,7 +223,8 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))
+  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))+
+  theme_classic()
 ```
 
 Here we see the likeilhood of the observed outcomes (number of kids who help) assuming that the underlying parameter $\theta$ has a value of 0.3. We can look at the likelihood distribution assuming different values of $\theta$.
@@ -252,7 +255,8 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  facet_wrap(~src, nrow = 1)
+  facet_wrap(~src, nrow = 1)+
+  theme_classic()
 ```
 Here we see different (probabilistic) predictions about what the data should look if the underlying parameter had a particular value. You can think of the different parameter values as different hypotheses, which make more or less strong predictions about the observed data would look like. For example, notice how when theta = 0.9 or 0.1 the predictions are much less spread out in comparison to the theta = 0.5.
 
@@ -297,7 +301,8 @@ data.frame(
 
 df_posterior %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  geom_line()+
+  theme_classic()
 
 ```
 
@@ -387,7 +392,8 @@ data.frame(
 
 df_posterior_informed %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  geom_line()+
+  theme_classic()
 ```
 
 The results look (visually) similar. Let's look at our various summary statistics:
