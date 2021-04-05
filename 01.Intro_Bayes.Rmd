@@ -53,7 +53,7 @@ This concept of repeating the events is fundamental to Frequentist Statistics. I
 
 This assumption runs into immediate problems when a Frequentist tries to describe the probability of a singular event: For example, the probability of it raining on April 8, 2021 in Palo Alto, California is a singular event in time. How do we define what counts as a sufficiently similar event? It also has trouble when describing probabilities of probabilities. For example, what is the probability that my special coin has a probability of 0.2 of landing of Heads?
 
-## Probability in the Bayeisan world
+## Probability in the Bayesian world
 
 The Bayesian perspective does not rely on assuming we can repeat identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities. 
 
