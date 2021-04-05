@@ -156,7 +156,11 @@ Bayes Rule tells us, mathematically, what we should believe about $\theta$ given
 $$
 P(\theta \mid  d) \propto P(d \mid \theta) \times P(\theta)
 $$
+Let's try to rewrite that in a slightly more readable way by saying:
 
+$$
+P(\text{helpingness} \mid  \text{data}) \propto P(\text{data} \mid \text{helpingness}) \times P(\text{helpingness})
+$$
 ### A prior distribution
 
 The prior distribution $P(\theta)$ encodes our expectations about the underlying parameter. What do we know about `theta` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.

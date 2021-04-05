@@ -18,6 +18,7 @@ bibliography: library.bib
 
 ```{r, echo=FALSE}
 library(knitr)
+library(tidyverse)
 opts_chunk$set(echo=TRUE, 
                warning=FALSE, message=FALSE, 
                cache=FALSE)
