@@ -287,7 +287,10 @@ data.frame(
     dbeta(x = bins, shape1 = prior_parameters$shape1,
           shape2 = prior_parameters$shape2)
   )
-) %>%
+) -> df_posterior
+
+
+df_posterior %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()
 
@@ -295,8 +298,51 @@ data.frame(
 
 The posterior distribution encodes the methematically correct beliefs about the parameter given the prior, the likelihood, and the observed data. 
 
+We can interrogate the posterior to get answers to our burning scientific questions.
 
+### What is the most likely value of the parameter given the data?
 
+The most likely value is referred to as the *Maximum A-Posteriori* (or, MAP) value. We can find it by picking out the value of theta that corresponds to the maximum probability (or density) value.
+
+```{r}
+df_posterior %>%
+  filter(src == "posterior") %>%
+  summarize(
+    MAP = theta[which.max(density)]
+  )
+```
+
+### How likely is it that the parameter is greater than 0.5?
+
+Since the posterior distribution encodes our degrees of belief about all values of the parameters, we can ask specific questions about the probabilities that correspond to ranges of values. For example, we are often interested in critical values like 0.5 (chance performance).
+
+```{r}
+df_posterior %>%
+  filter(src == "posterior") %>%
+  mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
+  filter(theta > 0.5) %>%
+  summarize(
+    prob_gt_0.5 = sum(norm_prob)
+  )
+
+# since the posterior is analytically computed and we know (from mathematical analysis) that the shape of the posterior is a Beta distribution, we can also calculate this probability using the `pbeta` function
+
+# 1 - pbeta(0.5, posterior_parameters$shape1, posterior_parameters$shape2)
+```
+
+Here we see that there is approximately a 96% chance that the parameter is greater than 0.5. 
+
+### What is the most likely range of values? (The *Bayesian Credible Interval*)
+
+When describing posterior distributions, we are often interested in summarizing them in terms of a credible intervals (not to be confused with a frequentist confidence interval, though they have similar applications). There are a number of distinct credible intervals one could describe, but a simple one is looking at the X% range of the posterior (e.g., 95%) by examining the middle 95% quantile.
+
+```{r}
+qbeta(p = c(0.025, 0.975),
+      shape1 = posterior_parameters$shape1, 
+      shape2 = posterior_parameters$shape2)
+```
+
+The proper interpretation of this credible interval is to say that there is a 95% chance that the parameter lies between 0.48 and 0.83. 
 
 
 ## How prior and likelihood together affect the posterior?
