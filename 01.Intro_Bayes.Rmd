@@ -345,7 +345,80 @@ qbeta(p = c(0.025, 0.975),
 The proper interpretation of this credible interval is to say that there is a 95% chance that the parameter lies between 0.48 and 0.83. 
 
 
-## How prior and likelihood together affect the posterior?
+## How the prior affects the posterior
+
+Thus far in our running example, we have been assuming the uninformative prior that we articulated above, where we had no substantive (or independently justified) beliefs about the parameter *a priori*. Let's now examine how our posterior inferences would be affected if we had substantive prior beliefs. Let's assume we had meta-analytic data that gave us the prior we showed above, where lower values of the parameter were more likely a priori. 
+
+```{r}
+informed_prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+
+observed_data <- 17
+number_of_observations <- 25
+
+# this example is a classic Beta-Binomial problem, where the posterior distribution can be computed analytically
+informed_posterior_parameters <- list(
+  shape1 = informed_prior_parameters$shape1 + observed_data,
+  shape2 = informed_prior_parameters$shape2 + number_of_observations - observed_data
+  )
+
+bins <- seq(0.001, 0.999, 0.001)
+
+data.frame(
+  src = c(
+    rep("posterior",length(bins)), 
+    rep("prior", length(bins))
+    ),
+  theta = c(bins, bins),
+  density = c(
+    dbeta(x = bins, 
+          shape1 = informed_posterior_parameters$shape1,
+          shape2 = informed_posterior_parameters$shape2),
+    dbeta(x = bins, 
+          shape1 = informed_prior_parameters$shape1,
+          shape2 = informed_prior_parameters$shape2)
+  )
+) -> df_posterior_informed
 
 
-MH: can you add your plots here? Like those in your session 19 Rmd. One concern is that I don't see the "likelihood" distribution in the Rmd (sorry that if I have missed it), so if you can add this back to the plots and make three plots (uninformative prior, weakly informative prior and very informative prior) and illustrates how these prior affect the posterior distribution, with the same likelihood distribution here, it will be great.
+df_posterior_informed %>%
+  ggplot(., aes( x = theta, y = density, linetype = src))+
+  geom_line()
+```
+
+The results look (visually) similar. Let's look at our various summary statistics:
+
+#### MAP value
+
+```{r}
+df_posterior_informed %>%
+  filter(src == "posterior") %>%
+  summarize(
+    MAP = theta[which.max(density)]
+  )
+```
+
+#### P(theta > 0.5)
+
+```{r}
+df_posterior_informed %>%
+  filter(src == "posterior") %>%
+  mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
+  filter(theta > 0.5) %>%
+  summarize(
+    prob_gt_0.5 = sum(norm_prob)
+  )
+```
+
+#### 95% credible interval
+
+```{r}
+qbeta(p = c(0.025, 0.975),
+      shape1 = informed_posterior_parameters$shape1, 
+      shape2 = informed_posterior_parameters$shape2)
+```
+
+### Digest
+
+As we can see from these summary statistics of the posterior distribution, our priors affected the posterior outcomes. Overall, our prior expectations that the parameter value was relatively low made our posterior beliefs about the parameter to favor slightly lower values overall. The MAP estimate is lower than it was before as are the credible interval and the probability that the parameter is > 0.5. Always remember the posterior beliefs are both a function of the prior expectations and the data / likelihood.
+
+In the next session, we will use the Bayesian Framework to quantify evidence in support of or against a particular hypothesis.
