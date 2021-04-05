@@ -44,11 +44,11 @@ By the end of this session, you will have a basic understanding of the following
 
 # Testing hypothesis
 
-As developmental psychologists, we are often in the business of designing experiments to test hypotheses, but what do we mean exactly by "test hypotheses"? Classically, the (frequentist) statistical approach to hypothesis testing concerns procedures that result in categorical decision, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made currently. The most popular decision procedures appeal to the statistic known as the "p-value", which quantifies some measure of the probability of the data observed in the experiment assuming a hypothesis is true. The procedure typically goes that when the p-value is sufficiently small (e.g., $< 0.05$), the decision can be made to reject the hypothesis.
+As developmental psychologists, we are often in the business of designing experiments to test hypotheses, but what do we mean exactly by "test hypotheses"? Classically, the (frequentist) statistical approach to hypothesis testing concerns procedures that result in a categorical decision, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made currently. The most popular decision procedures appeal to the statistic known as the "p-value", which quantifies some measure of the probability of the data observed in the experiment assuming a hypothesis is true. The procedure typically goes that when the p-value is sufficiently small (e.g., $< 0.05$), the decision can be made to reject the hypothesis.
 
 The Bayesian approach to hypothesis testing is slightly different. Rather than be concerned with categorical decisions, Bayesian methods aim to quantify the amount of evidence in favor or against a hypothesis. Decision rules can then be applied to this quantification of evidence (e.g., if the amount of evidence in support of a hypothesis is sufficiently great, we might accept the hypothesis as true), but they can also be evaluated on their own terms (e.g., a hypothesis being 10x as likely as another is not as compelling as a hypothsis that is 100x as likely).
 
-# Bayes Factors
+# Bayesian Background
 
 Recall from Session 1, the definition of Bayes Rule / Theorem:
 
@@ -56,15 +56,55 @@ $$
 P(H \mid D) \propto P(D \mid H) \times P(H)
 $$
 
-For purposes of hypothesis testing, we are generally interested in comparing the relatively probability of one hypothesis vs. another. In other words, we are interesting in a *probability ratio* (or, odds ratio):
+For purposes of hypothesis testing, we are generally interested in comparing the relative probability of one hypothesis vs. another. In other words, we are interesting in a *probability ratio* (or, odds ratio):
 
 $$
 \frac{P(H_1 \mid D)}{P(H_2 \mid D)} \propto \frac{P(D \mid H_1)}{P(D \mid H_2)} \times \frac{P(H_1)}{P(H_2)}
 $$
 ## Posterior Model Odds
 
-The term on the left-hand side ($\frac{P(H_1 \mid D)}{P(H_2 \mid D)}$) refers to the relative probability of $H_1$ in comparison to $H_2$ in light of the observed data $D$. This ratio, termed the *posterior model odds*, is the kind of quantity we would -- in an ideal world -- like to use to grow scientific knowledge: pursuing the hypotheses that are most likely given the data.
+The term on the left-hand side ($\frac{P(H_1 \mid D)}{P(H_2 \mid D)}$) refers to the relative probability of $H_1$ in comparison to $H_2$ in light of the observed data $D$. This ratio, termed the *posterior model odds*, is the kind of quantity we would like -- in an ideal world -- to use to grow scientific knowledge: pursuing the hypotheses that are most likely given the data.
 
-The trouble with the *posterior model odds*, as revealed by the formula above, is that they depend upon the *prior model odds*: $\frac{P(H_1)}{P(H_2)}$. The prior model odds refer to how likely these hypothesis are *a priori*, before having seen the data. This ratio is very difficult to estimate or agree upon with other scientists: Perhaps you think $H_1$ and $H_2$ are roughly equally plausible *a priori* (e.g., $P(H_1) = P(H_2) = 0.5$), but your reviewer thinks $H_2$ is absurd and unlikely ($P(H_2) = 0.01$). Then the posterior odds could differ from reader-to-reader, depending on their prior beliefs about the various hypotheses. Such divergences obviously exist and are reasonable, but they best left to informal discussions rather than serve as contentious factors in how you evaluate the data. (However, see Wagenmakers et al. (2011) *Why psychologists must change the way they analyze their data: The case of psi: Comment on Bem (2011).* for a reasonable application of posterior model odds.)
+The trouble with the *posterior model odds*, as revealed by the formula above, is that they depend upon the *prior model odds*: $\frac{P(H_1)}{P(H_2)}$. The prior model odds refer to how likely these hypothesis are *a priori*, before having seen the data. This ratio is very difficult to estimate or agree upon with other scientists: Perhaps you think $H_1$ and $H_2$ are roughly equally plausible *a priori* (e.g., $P(H_1) = P(H_2) = 0.5$), but your reviewer thinks $H_2$ is absurd and unlikely ($P(H_2) = 0.01$). Then the posterior odds could differ from reader-to-reader, depending on their prior beliefs about the various hypotheses. Such divergences in the interpretation of results obviously exist and are reasonable to expect, but they undermine the utility of using *posterior model odds* in order to make scientific inferences (however, see Wagenmakers et al. (2011) *Why psychologists must change the way they analyze their data: The case of psi: Comment on Bem (2011).* for a reasonable application of posterior model odds to argue against putative psychological phenomena that have no plausible physical mechanism such as ESP.)
 
+## Bayes Factors
+
+Since *posterior model odds* are difficult to assess in a non-subjective manner, scientists and statisticians instead have gravitated towards the first term on the right hand-side of the equation above, the likelihood ratio: $\frac{P(D \mid H_1)}{P(D \mid H_2)}$. This ratio, which is what is known as the **Bayes Factor** (or, BF), quantifies the comparison of how well each hypothesis predicts the data. The Bayes Factor does not depend upon one's prior beliefs about the hypotheses. 
+
+
+### Calculating Bayes Factors
+
+The likelihood terms that enter into the Bayes Factor calculations are the *marginal likelihood of the data* under each hypothesis. We call this likelihood the "marginal likelihood" because it is the number arrived at when you *marginalize* (or, average) over the prior distribution on parameters for that model. Concretely,
+
+$$P(D \mid H_1) = \int_{\theta} P(D \mid \theta) \times P(\theta \mid H_1) d\theta$$
+Let's read this formula from right to left. $P(\theta \mid H_1)$ is the prior distribution over the parameter $\theta$ as specified by hypothesis $H_1$. For instance, in the previous section, we looked at how different prior distributions over parameters affect the posterior distribution on parameters. The way to think about this is that a hypothesis comes with (or, is specified via) commitments about the parameter(s) of the hypothesis; these commitments can be loose (e.g., an uninformative prior on the parameter), but nevertheless, they must be explicit.
+
+The next term is $P(D \mid \theta)$ and this is merely the likelihood of data $D$ given parameter value $\theta$ (and implicitly, assuming $H_1$ is true). We saw this term explained in previous section when looking at the kinds of data  that would be expected under each value of the parameter.
+
+Finally, we have an integral $\int_{\theta}... d\theta$, which can also be thought of as a sum $\sum_\theta$, which averages over all of the likelihood values computed. This marginalization (averaging) is a key step. We evaluate hypotheses by how well the hypothesis predicts the data *on average*, averaging over the hypotheses' prior expectations about the parameters. This averaging over the prior distribution on parameters has the effect of penalizing *vague* or flexible or underspecified hypotheses. We will see this concept appear below as well.
+
+
+### Understanding Bayes Factors
+
+The Bayes Factor is a ratio of probabilities. If $BF = 1$, that means $P(D \mid H_1) = P(D \mid H_2)$; in other words, the hypotheses do an equally good (or bad) job at predicting the data. Thus, the data does not favor one hypothesis over an other. 
+
+If $BF > 1$ or $BF < 1$, it is important to check which hypothesis is in the numerator of the Bayes Factor and which is in the denominator. For example, in the equation above, the number concerns $H_1$ and the denominator concerns $H_2$. So, if $BF = 5$, then $H_1$ is 5 times as good at predicting the data than $H_2$. If instead our Bayes Factor was written as $\frac{P(D \mid H_2)}{P(D \mid H_1)}$, then the same statistical evidence would register as $BF = \frac{1}{5} = 0.2$. 
+
+### Interpreting Bayes Factors
+
+How high (or, low) does the Bayes Factor need to be to provide evidence for one hypothesis over another? As we noted abovce, the BF is a continuous measure of evidence; literally, if $BF > 1$ or $BF < 1$, there is some evidence in favor of one hypothesis over another. 
+
+But still, you might ask, how much evidence is sufficient to publish a result? Just like setting a threshold for p-values (e.g., 0.05, 0.01, 0.001,...), it is a tricky business. The British mathematician at the heart of the Bayesian statistical revivial, [Sir Harold Jeffreys](https://en.wikipedia.org/wiki/Harold_Jeffreys), laid out the following interpretative scale:
+
+Evidence in favor of $H_1$ (numerator hypothesis) over $H_2$ (denominator hypothesis)
+- 1-3: "Barely worth mentioning"
+- 3-10: "Substantial"
+- 10-30: "Strong"
+- 30-100: "Very strong"
+- >100: "Decisive"
+
+## Factors that affect Bayes Factors
+
+- data
+- the hypothesis (mostly: priors, but can be the likelihood [cognitive models] as well)
 
