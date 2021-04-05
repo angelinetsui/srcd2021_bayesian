@@ -105,25 +105,201 @@ P(B \mid A) = \frac{P(A \mid B) * {P(B)}}{P(A)}
 $$
 In short, Bayes' Theorem is a way of calculating "inverse" conditional probabilities. It is very useful for understanding what we want to measure in statistics within the Frequestist and Bayesian frameworks.
 
-### Data analysis
+# Overview of Statistical Analysis
 
-In the Frequestist framework, we often run hypothesis testing and determine statistical significance by comparing p values with an alpha level (0.05). P value is the probability of obtaining results at least as extreme as the observed results of a statistical hypothesis test, assuming that the null hypothesis is true.
+In the Frequestist framework, we often run hypothesis tests and determine statistical significance by comparing p-values with an alpha level (0.05). The p-value is the probability of obtaining results at least as extreme as the observed results of a statistical hypothesis test, assuming that the null hypothesis is true.
 
-Thus, in frequestist framework, we are calculating the probability of observing some data, conditional on the probability of null hypothesis. In other words, we can rewrite this as:
+Thus, in frequestist framework, we are calculating the probability of observing some data (technically: data at least as extreme as the observed data), conditional on the null hypothesis being true. In other words, we can rewrite this as:
 
 $$
 \text{p-value}= P(data \mid h0)
 $$
-However, researchers are often interested in finding the probability of a hypothesis, conditional on the observed data: P(h0 | data). So what we have been doing in the frequestist framework do not necessarily provide us with what we need.
+However, scientists are often interested in finding out whether or not a hypothesis is true (or, the probability that a hypothesis is true), conditional on the observed data: P(h | data). This is of course not what the p-value describes.
 
-Within the Bayesian framework, we can make use of the Bayes' Theorem to find out the P(h0 | data.)
+Within the Bayesian framework, we can make use of the Bayes' Theorem to find out P(h0 | data).
+
 $$
-P(h0 | data) = \frac{P(data | ho) * P(h0)}{P(data)}
+P(h | data) = \frac{P(data | h) * P(h)}{P(data)}
 $$
-P(data | h0) is the likelihood distribition of the data, conditional on the null hypothesis
-P(h0) is the prior distribution of the null hypothsis
-P(data) is the marginal distribution
-P(h0 | data) is the posterior distribution
+
+There are three key terms of Bayes Theorem, which we will go into in more detail throughout the tutorial.
+
+- P(h) is the *prior distribution* of the hypothsis: What do we believe about the hypothesis before having observed any data?
+- P(data | h) is the *likelihood distribition* of the data, conditional on the hypothesis: What kind of data would you expect to see if the hypothesis were true?
+- P(h | data) is the *posterior distribution* of the hypothesis: What do we believe about the hypothesis after observing the data?
+
+The posterior distribituion is often the statistical object that we want in order to make scientific inferences.
+
+There is a fourth term in the equation -- P(data). For reasons that will become clear in the next section, this is termed the *marginal likelihood* of the data. It is not often looked at explicitly, except in the context of Hypothesis Testing (next session). In fact, this term is often omitted from Bayes Theorem, which can be written as a proportionality (rather than an equation):
+
+$$
+P(h | data) \propto P(data | h) * P(h)
+$$
+
+## Two flavors of data analysis: Parameter estimation and Hypothesis testing
+
+For most applications of psychological data analysis, we are either interested in estimating the parameters of a model or deciding which, among a set of alternatives, model is the best explanation of the data. Broadly, these two tasks are referred to *parameter estimation* and *hypothesis testing* (or, *model comparison*). We will take a look at parameter estimation here. In the next session, we will take up hypothesis testing.
+
+
+## An example of Parameter Estimation
+
+Imagine we are investigating the origins of prosocial behavior: Some scientists believe humans are born with a self-interested tendency and only acquire prosociality through instruction. Others believe altruism in innate; as soon as children are physically and cognitively able to help, they will. To investigate this, we put pre-verbal infants in a context where a person is struggling to complete their goal and test whether or not the child helps the struggling individual.
+
+A parameter estimation question: What is the underlying population’s propensity to help? (i.e., how much do children help in this context?). We call the "propensity to help" (or, the theoretical proportion of kids of this population who would help in this context) a *parameter*, since it is not directly observable. Let's call this parameter `theta` $\theta$.
+
+Let's imagine we collected data from 25 infants and each participant contributes a single, binary response (help or not help). Imagine that 17 out of the 25 help. Numerically, that is `r (17/25)*100`%. But that is just the proportion of kids who help in this study. What can we say about the underlying population's propensity to help? (Or, in theory, how many kids out of the population would help in this context?)
+
+
+Bayes Rule tells us, mathematically, what we should believe about $\theta$ given the data we've observed. 
+
+$$
+P(\theta \mid  d) \propto P(d \mid \theta) \times P(\theta)
+$$
+
+### A prior distribution
+
+The prior distribution $P(\theta)$ encodes our expectations about the underlying parameter. What do we know about `theta` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
+
+```{r}
+prior_parameters <- list(shape1 = 1, shape2 = 1) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+
+bins <- seq(0.001, 0.999, 0.001)
+
+data.frame(
+  src = rep("prior", length(bins)),
+  theta = bins,
+  density = dbeta(x = bins, shape1 = prior_parameters$shape1,
+          shape2 = prior_parameters$shape2)
+) %>%
+  ggplot(., aes( x = theta, y = density, linetype = src))+
+  geom_line()+
+  ggtitle("An uninformed prior distribution")
+
+```
+
+Here, all values of $\theta$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
+
+```{r}
+prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+
+data.frame(
+  src = rep("prior", length(bins)),
+  theta = bins,
+  density = dbeta(x = bins, shape1 = prior_parameters$shape1,
+          shape2 = prior_parameters$shape2)
+) %>%
+  ggplot(., aes( x = theta, y = density, linetype = src))+
+  geom_line()+
+  ggtitle("An informed prior distribution")
+
+```
+
+
+Under this prior distribution, our best guess (*before having seen the data from our experiment*) is that $\theta$ is around 0.25, though we do not have super strong beliefs about this. This kind of informed prior could be used when the scientist has indendently justified beliefs about $\theta$ (e.g., via a meta-analysis of the prior literature).
+
+### A likelihood distribution
+
+The likelihood distribution encodes what data we would expect to see given a particular value of the parameter. This is sometimes called the "forward model", because it describes the process that hypothetically generates the observed data. The likelihood distribution can be quite complicated (e.g., in the case of mixed-effects regression models, as we will see later), but it can also be quite simple. In fact, in our case of binary data where each participant contributes one data point, the likeihood distribution is as simple as flipping a coin (literally).
+
+The data we have is a forced choice (Help vs. No help). Multiple (independent) forced choice responses are samples from a Binomial distribution (i.e., they are binomially-distributed).
+
+```{r}
+hypothetical_true_population_parameter <- 0.3
+data_bins <- seq(0, 25, 1)
+
+data.frame(
+  src = rep("likelihood", length(data_bins)),
+  x = data_bins,
+  prob = dbinom(x = data_bins, size = 25, p = hypothetical_true_population_parameter)
+) %>%
+  ggplot(., aes( x = x, y = prob, linetype = src))+
+  geom_col()+
+  xlab("hypothetical data (positive observations)")+
+  ylab("probability mass")+
+  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))
+```
+
+Here we see the likeilhood of the observed outcomes (number of kids who help) assuming that the underlying parameter $\theta$ has a value of 0.3. We can look at the likelihood distribution assuming different values of $\theta$.
+
+
+```{r}
+hypothetical_true_population_parameter <- 0.3
+data_bins <- seq(0, 25, 1)
+
+data.frame(
+  src = paste("P(d | theta = ", c(
+    rep(0.1, length(data_bins)),
+    rep(0.3, length(data_bins)),
+    rep(0.5, length(data_bins)),
+    rep(0.7, length(data_bins)),
+    rep(0.9, length(data_bins))
+  ), ")", sep = ""),
+  x = c(data_bins,data_bins,data_bins,data_bins,data_bins),
+  prob = c(
+    dbinom(x = data_bins, size = 25, p = 0.1),
+    dbinom(x = data_bins, size = 25, p = 0.3),
+    dbinom(x = data_bins, size = 25, p = 0.5),
+    dbinom(x = data_bins, size = 25, p = 0.7),
+    dbinom(x = data_bins, size = 25, p = 0.9)
+    )
+) %>%
+  ggplot(., aes( x = x, y = prob))+
+  geom_col()+
+  xlab("hypothetical data (positive observations)")+
+  ylab("probability mass")+
+  facet_wrap(~src, nrow = 1)
+```
+Here we see different (probabilistic) predictions about what the data should look if the underlying parameter had a particular value. You can think of the different parameter values as different hypotheses, which make more or less strong predictions about the observed data would look like. For example, notice how when theta = 0.9 or 0.1 the predictions are much less spread out in comparison to the theta = 0.5.
+
+We have now specified a likelihood distribution (or rather, a family of likelihood distributions). We can now use Bayes Theorem to inverse the direction of inference: rather than looking at what the data should look like assuming different parameter values, we can ask what the parameter should look like assuming a particular observed data set.
+
+
+### Putting the two together to make a posterior distribution
+
+
+Once you have a prior distribution and a likelihood distribution, we can use Bayes Theorem to compute a posterior distribution. In practice, there are several ways to do this computation, which we will not have the chance to go into in this tutorial. In practice, we will be concerning ourselves with parameter estimation of regression models, which we will cover in Session 3. Here we illustrate what posterior distributions look like (glossing over for now the calculation of how you actually get a posterior distribution).
+
+Assuming the uninformative (flat) prior above and the Binomial likelihood model, we arrive at the following posterior:
+
+```{r}
+prior_parameters <- list(shape1 = 1, shape2 = 1) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+
+observed_data <- 17
+number_of_observations <- 25
+
+# this example is a classic Beta-Binomial problem, where the posterior distribution can be computed analytically
+posterior_parameters <- list(
+  shape1 = prior_parameters$shape1 + observed_data,
+  shape2 = prior_parameters$shape2 + number_of_observations - observed_data
+  )
+
+bins <- seq(0.001, 0.999, 0.001)
+
+data.frame(
+  src = c(
+    rep("posterior",length(bins)), 
+    rep("prior", length(bins))
+    ),
+  theta = c(bins, bins),
+  density = c(
+    dbeta(x = bins, shape1 = posterior_parameters$shape1,
+          shape2 = posterior_parameters$shape2),
+    dbeta(x = bins, shape1 = prior_parameters$shape1,
+          shape2 = prior_parameters$shape2)
+  )
+) %>%
+  ggplot(., aes( x = theta, y = density, linetype = src))+
+  geom_line()
+
+```
+
+The posterior distribution encodes the methematically correct beliefs about the parameter given the prior, the likelihood, and the observed data. 
+
+
+
+
 
 ## How prior and likelihood together affect the posterior?
+
+
 MH: can you add your plots here? Like those in your session 19 Rmd. One concern is that I don't see the "likelihood" distribution in the Rmd (sorry that if I have missed it), so if you can add this back to the plots and make three plots (uninformative prior, weakly informative prior and very informative prior) and illustrates how these prior affect the posterior distribution, with the same likelihood distribution here, it will be great.
