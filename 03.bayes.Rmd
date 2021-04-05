@@ -196,9 +196,9 @@ Let us visualize the posterior distribution of some parameters.
 ```{r}
 posterior_default <- as.array(Bayes_model_default)
 dim(posterior_default)
-dimnames(posterior_default)
+#dimnames(posterior_default) finding the names of the parameters
 
-mcmc_areas(posterior_default,
+default_post <- mcmc_areas(posterior_default,
            pars = c("b_center_age_mo:trial_type",
                     "b_trial_type:center_trial_num",
                     "b_trial_type:center_trial_order",
@@ -244,6 +244,24 @@ Bayes_model_priors <- brm(looking_time ~ center_age_mo:trial_type + center_trial
                    file="mb1_bayes_priors.mod")
 
 print(summary(Bayes_model_priors), digits = 3)
+```
+
+Let us visualize the posterior distribution of some parameters after we have incorporated some prior information 
+```{r}
+posterior_priors <- as.array(Bayes_model_priors)
+dim(posterior_priors)
+#dimnames(posterior_priors) finding the names of the parameters
+
+prior_post <- mcmc_areas(posterior_priors,
+           pars = c("b_center_age_mo:trial_type",
+                    "b_trial_type:center_trial_num",
+                    "b_trial_type:center_trial_order",
+                    "b_trial_type:naeTRUE"), #you can select which parameter(s) you want to plot
+           prob = 0.95) + 
+  ggtitle("Posterior distributions", 
+          "with medians and 95% credit intervals")
+
+cowplot::plot_grid(default_post, prior_post, labels = c("Default", "With Prior"))
 ```
 
 ## Step 4: Posterior predictive check
