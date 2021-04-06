@@ -180,24 +180,25 @@ For most applications of psychological data analysis, we are either interested i
 
 Imagine we are investigating the origins of prosocial behavior: Some scientists believe humans are born with a self-interested tendency and only acquire prosociality through instruction. Others believe altruism in innate; as soon as children are physically and cognitively able to help, they will. To investigate this, we put pre-verbal infants in a context where a person is struggling to complete their goal and test whether or not the child helps the struggling individual.
 
-A parameter estimation question: What is the underlying population’s propensity to help? (i.e., how much do children help in this context?). We call the "propensity to help" (or, the theoretical proportion of kids of this population who would help in this context) a *parameter*, since it is not directly observable. Let's call this parameter `helpfulness`.
+A parameter estimation question: What is the underlying population’s propensity to help? (i.e., how much do children help in this context?). We call the "propensity to help" (or, the theoretical proportion of kids of this population who would help in this context) a *parameter*, since it is not directly observable. Let's call this parameter `helpingness`.
 
 Let's imagine we collected data from 25 infants and each participant contributes a single, binary response (help or not help). Imagine that 17 out of the 25 help. Numerically, that is `r (17/25)*100`%. But that is just the proportion of kids who help in this study. What can we say about the underlying population's propensity to help? (Or, in theory, how many kids out of the population would help in this context?)
 
 
-Bayes Rule tells us, mathematically, what we should believe about `helpfulness` given the data we've observed. 
+Bayes Rule tells us, mathematically, what we should believe about `helpingness` given the data we've observed. 
 
 $$
-P(\theta \mid  d) \propto P(d \mid \theta) \times P(\theta)
+P(h \mid  d) \propto P(d \mid h) \times P(h)
 $$
 Let's try to rewrite that in a slightly more readable way by saying:
 
 $$
 P(\text{helpingness} \mid  \text{data}) \propto P(\text{data} \mid \text{helpingness}) \times P(\text{helpingness})
 $$
+
 ### A prior distribution
 
-The prior distribution $P(\theta)$ encodes our expectations about the underlying parameter. What do we know about `theta` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
+The prior distribution $P(helpingness)$ encodes our expectations about the underlying parameter. What do we know about `helpingness` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
 
 ```{r}
 prior_parameters <- list(shape1 = 1, shape2 = 1) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
@@ -206,29 +207,29 @@ bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = rep("prior", length(bins)),
-  theta = bins,
+  helpingness = bins,
   density = dbeta(x = bins, shape1 = prior_parameters$shape1,
           shape2 = prior_parameters$shape2)
 ) %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
   ggtitle("An uninformed prior distribution")+
   theme_classic()
 
 ```
 
-Here, all values of $\theta$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
+Here, all values of $helpingness$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
 
 ```{r}
 prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
 
 data.frame(
   src = rep("prior", length(bins)),
-  theta = bins,
+  helpingness = bins,
   density = dbeta(x = bins, shape1 = prior_parameters$shape1,
           shape2 = prior_parameters$shape2)
 ) %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
   ggtitle("An informed prior distribution") +
   theme_classic()
@@ -236,7 +237,7 @@ data.frame(
 ```
 
 
-Under this prior distribution, our best guess (*before having seen the data from our experiment*) is that $\theta$ is around 0.25, though we do not have super strong beliefs about this. This kind of informed prior could be used when the scientist has indendently justified beliefs about $\theta$ (e.g., via a meta-analysis of the prior literature).
+Under this prior distribution, our best guess (*before having seen the data from our experiment*) is that $helpingness$ is around 0.25, though we do not have super strong beliefs about this. This kind of informed prior could be used when the scientist has indendently justified beliefs about $helpingness$ (e.g., via a meta-analysis of the prior literature).
 
 ### A likelihood distribution
 
@@ -257,7 +258,7 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))+
+  ggtitle(paste("P(d | helpingness = ",hypothetical_true_population_parameter ,")", sep = ""))+
   theme_classic()
 ```
 
@@ -269,7 +270,7 @@ hypothetical_true_population_parameter <- 0.3
 data_bins <- seq(0, 25, 1)
 
 data.frame(
-  src = paste("P(d | theta = ", c(
+  src = paste("P(d | helpingness = ", c(
     rep(0.1, length(data_bins)),
     rep(0.3, length(data_bins)),
     rep(0.5, length(data_bins)),
@@ -324,7 +325,7 @@ data.frame(
     rep("posterior",length(bins)), 
     rep("prior", length(bins))
     ),
-  theta = c(bins, bins),
+  helpingness = c(bins, bins),
   density = c(
     dbeta(x = bins, shape1 = posterior_parameters$shape1,
           shape2 = posterior_parameters$shape2),
@@ -335,7 +336,7 @@ data.frame(
 
 
 df_posterior %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
   theme_classic()
 
@@ -353,7 +354,7 @@ The most likely value is referred to as the *Maximum A-Posteriori* (or, MAP) val
 df_posterior %>%
   filter(src == "posterior") %>%
   summarize(
-    MAP = theta[which.max(density)]
+    MAP = helpingness[which.max(density)]
   )
 ```
 
@@ -365,7 +366,7 @@ Since the posterior distribution encodes our degrees of belief about all values 
 df_posterior %>%
   filter(src == "posterior") %>%
   mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
-  filter(theta > 0.5) %>%
+  filter(helpingness > 0.5) %>%
   summarize(
     prob_gt_0.5 = sum(norm_prob)
   )
@@ -413,7 +414,7 @@ data.frame(
     rep("posterior",length(bins)), 
     rep("prior", length(bins))
     ),
-  theta = c(bins, bins),
+  helpingness = c(bins, bins),
   density = c(
     dbeta(x = bins, 
           shape1 = informed_posterior_parameters$shape1,
@@ -426,7 +427,7 @@ data.frame(
 
 
 df_posterior_informed %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
   theme_classic()
 ```
@@ -439,7 +440,7 @@ The results look (visually) similar. Let's look at our various summary statistic
 df_posterior_informed %>%
   filter(src == "posterior") %>%
   summarize(
-    MAP = theta[which.max(density)]
+    MAP = helpingness[which.max(density)]
   )
 ```
 
@@ -449,7 +450,7 @@ df_posterior_informed %>%
 df_posterior_informed %>%
   filter(src == "posterior") %>%
   mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
-  filter(theta > 0.5) %>%
+  filter(helpingness > 0.5) %>%
   summarize(
     prob_gt_0.5 = sum(norm_prob)
   )
