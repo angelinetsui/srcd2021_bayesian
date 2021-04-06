@@ -29,10 +29,6 @@ This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), an
 
 This short tutorial covers some basic concepts of mixed-effect models and how to run Bayesian mixed-effect model in R. 
 
-<!-- We will use the following tools: -->
-
-<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
-
 ## Learning goals
 
 By the end of this class, you will have a basic understanding of the following:
@@ -57,10 +53,15 @@ Under the frequentest approach, we determine whether the relationship between th
 
 Typically regression models have several assumptions, they include:
 1. Linearity between the $DV$ and $IV_i$
+
 2. Residuals are uncorrelated with one another
+
 3. Residuals have an expected value of zero
+
 4. Variance of residuals is constant across $IV_i$, also known as homoscedasticity
+
 5. No multicollinearity
+
 6. (Optional) Residuals are normally distributed
 
 In Developmental research, we often collect data repeatedly from one individual (e.g., one child) as we are interested in the development of the children's ability over time. We cannot simply use regression models to analyze our data because we necessarily violate assumption 2: Residuals are uncorrelated with one another. In this case, we can use mixed-effect model to analyze this kind of data.
@@ -119,11 +120,15 @@ ggplot(data = mb1_data, aes(x = trial_num, y = looking_time, color = trial_type)
 ```
 
 We can notice a few things:
-1) Older infants tend to look less than younger infants (at least for North American English infants)
+1) Older infants tend to look less than younger infants (at least for North American English infants).
+
 2) All infants look less over-time, but older infants appear to have a faster rate of looking time decline than younger infants.
-2) The gap between IDS and ADS is larger for older infants, suggesting that IDS preference is stronger for older infants. 
-3) North American English infants generally look longer to the the stimuli (North American English speech) than nin North American English infants
-4) The gap between IDS and ADS is larger for North American English infants in comparison to non North American English infants, suggesting that North American English infants may show stronger IDS preference than non North American English infants.
+
+3) The gap between IDS and ADS is larger for older infants, suggesting that IDS preference is stronger for older infants. 
+
+4) North American English infants generally look longer to the the stimuli (North American English speech) than nin North American English infants.
+
+5) The gap between IDS and ADS is larger for North American English infants in comparison to non North American English infants, suggesting that North American English infants may show stronger IDS preference than non North American English infants.
 
 ### Step 4: Analyzing the data
 
@@ -180,11 +185,11 @@ Before running a model with prior, let us run the model without the default prio
 Bayes_model_default <- brm(looking_time ~ center_age_mo * IDS + 
                      (1 |subid),
                      family = lognormal(),
-                   data = mb1_data,
-                   # extra settings to make things go faster and to save data
-                   cores = 2,
-                   chains = 2,
-                   seed = 123)
+                     data = mb1_data,
+                     # extra settings to make things go faster and to save data
+                     cores = 2,
+                     chains = 2,
+                     seed = 123)
 
 print(summary(Bayes_model_default), digits = 3)
 ```
@@ -231,7 +236,7 @@ Bayes_model_priors <- brm(looking_time ~ center_age_mo * IDS,
                    data = mb1_data,
                    cores = 2,
                    chains = 2, 
-                   seed = 123)
+                   seed = 456)
 
 print(summary(Bayes_model_priors), digits = 3)
 ```
@@ -252,7 +257,10 @@ prior_post <- mcmc_areas(posterior_priors,
           "with medians and 95% credit intervals")
 
 cowplot::plot_grid(default_post, prior_post, labels = c("Default", "With Prior"))
+
+mb1_data_hpp <- length(unique(mb1_data$subid_unique))
 ```
+The posterior distributions are very similar between the models using default priors and our priors. This is because we had a fairly large sample `r `
 
 ## Step 4: Posterior predictive check
 

@@ -47,17 +47,51 @@ Philosophers of mathematics and probability divide into two camps when it comes 
 
 ## Probability in the Frequestist world
 
-For a Frequentist, a probability describes the *long run relative frequency of events*. For example, if I have a special coin and I say the probability that this coin lands on Heads is 0.2, what a frequentist takes that to mean is: *if I were to flip this coin many many times, then the relative frequency of the coin landing on Heads will be 20%*. 
+For a Frequentist, a probability is the *long run relative frequency of events*. For example, if I have a coin which I say the probability of 0.2 that it lands on Heads, what a frequentist takes that to mean is: *if I were to flip this coin many many times, then the relative frequency of the coin landing on Heads will be 20%*. 
 
-This concept of repeating the events is fundamental to Frequentist Statistics. In the Frequestist world, probability is a long-run concept and it refers to the frequency of events when we repeat the trials (or, the generative process) to infinity. One of the most fundamental assumptions is that we can repeat the process (or the trials) in a *similar* manner for a long time. 
+This concept of repeating the events is fundamental to Frequentist Statistics. In the Frequestist world, probability is a long-run concept and it refers to the frequency of events when we repeat the trials many many times. This idea is at the core of why *optional stopping* (where one decides whether or not to collect more data based on the p-value computed on partial sample) is problematic.
 
-This assumption runs into immediate problems when a Frequentist tries to describe the probability of a singular event: For example, the probability of it raining on April 8, 2021 in Palo Alto, California is a singular event in time. How do we define what counts as a sufficiently similar event? It also has trouble when describing probabilities of probabilities. For example, what is the probability that my special coin has a probability of 0.2 of landing of Heads?
+Technincal Note: This assumption runs into (philosophical) problems when a Frequentist tries to describe the probability of a singular event: For example, the probability of it raining on April 8, 2021 in Palo Alto, California is a singular event in time. How do we define what counts as a sufficiently similar event? It also has trouble when describing probabilities of probabilities. For example, what is the probability that my special coin has a probability of 0.2 of landing of Heads?
+
+A Frequentist often thinks about distributions of possible *outcomes*. If we were to repeat the process, what outcomes might we expect? 
+
+### A distribution over the number of Heads, flipping a coin of probability 0.7 15 times
+
+```{r}
+possible_outcomes = seq(0, 15)
+
+data.frame(x = possible_outcomes,
+           y = dbinom(x= possible_outcomes, size = 15, prob = 0.7) ) %>%
+  ggplot(., aes( x, y))+
+  geom_col()+
+  labs(x = "Number of heads", y = "Probability mass")+
+  theme_classic()
+```
+
 
 ## Probability in the Bayesian world
 
-The Bayesian perspective does not rely on assuming we can repeat identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities. 
+The Bayesian perspective does not consider repeating identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities. 
 
 For example, we can estimate the probability of rain April 8, 2021 in Palo Alto, California using predictive models that encode our scientific knowledge of how whether systems evolve. These in turn might be guided by historical data (a kind of frequentist idea), but they may also include structured, theoretical knowledge about climate and weather. 
+
+While it might seem subtle, this move allows the Bayesian to consider concepts that the Frequentist does not consider. For example, the Bayesian can ask "How certain are you that the coin has probability 0.7 of coming up heads?" (For a Frequentist, this would amout to talking about *long run frequencies* of *long run frequencies*.) So while a Frequentist considers distributions over possible outcomes, the Bayesian can also consider distributions over probabilties. 
+
+### A distribution over the bias (or weight) of a coin (i.e., the probability that the coin will come up Heads)
+
+
+```{r}
+possible_probabilities = seq(0.01, 0.99, 0.01)
+
+data.frame(x = possible_probabilities,
+           y = dbeta(x= possible_probabilities, shape1 = 3, shape2 = 2) ) %>%
+  ggplot(., aes( x, y))+
+  geom_line()+
+  labs(x = "Weight of a coin", y = "Probability density")+
+  theme_classic()
+```
+
+**Question: What is/are the difference(s) between the two distributions shown above?**
 
 ## Bayes' theorem
 
@@ -117,7 +151,7 @@ $$
 $$
 However, scientists are often interested in finding out whether or not a hypothesis is true (or, the probability that a hypothesis is true), conditional on the observed data: P(h | data). This is of course not what the p-value describes.
 
-Within the Bayesian framework, we can make use of the Bayes' Theorem to find out P(h0 | data).
+Within the Bayesian framework, we can make use of the Bayes' Theorem to find out P(h | data).
 
 $$
 P(h | data) = \frac{P(data | h) * P(h)}{P(data)}
@@ -146,24 +180,25 @@ For most applications of psychological data analysis, we are either interested i
 
 Imagine we are investigating the origins of prosocial behavior: Some scientists believe humans are born with a self-interested tendency and only acquire prosociality through instruction. Others believe altruism in innate; as soon as children are physically and cognitively able to help, they will. To investigate this, we put pre-verbal infants in a context where a person is struggling to complete their goal and test whether or not the child helps the struggling individual.
 
-A parameter estimation question: What is the underlying population’s propensity to help? (i.e., how much do children help in this context?). We call the "propensity to help" (or, the theoretical proportion of kids of this population who would help in this context) a *parameter*, since it is not directly observable. Let's call this parameter `theta` $\theta$.
+A parameter estimation question: What is the underlying population’s propensity to help? (i.e., how much do children help in this context?). We call the "propensity to help" (or, the theoretical proportion of kids of this population who would help in this context) a *parameter*, since it is not directly observable. Let's call this parameter `helpingness`.
 
 Let's imagine we collected data from 25 infants and each participant contributes a single, binary response (help or not help). Imagine that 17 out of the 25 help. Numerically, that is `r (17/25)*100`%. But that is just the proportion of kids who help in this study. What can we say about the underlying population's propensity to help? (Or, in theory, how many kids out of the population would help in this context?)
 
 
-Bayes Rule tells us, mathematically, what we should believe about $\theta$ given the data we've observed. 
+Bayes Rule tells us, mathematically, what we should believe about `helpingness` given the data we've observed. 
 
 $$
-P(\theta \mid  d) \propto P(d \mid \theta) \times P(\theta)
+P(h \mid  d) \propto P(d \mid h) \times P(h)
 $$
 Let's try to rewrite that in a slightly more readable way by saying:
 
 $$
 P(\text{helpingness} \mid  \text{data}) \propto P(\text{data} \mid \text{helpingness}) \times P(\text{helpingness})
 $$
+
 ### A prior distribution
 
-The prior distribution $P(\theta)$ encodes our expectations about the underlying parameter. What do we know about `theta` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
+The prior distribution $P(helpingness)$ encodes our expectations about the underlying parameter. What do we know about `helpingness` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
 
 ```{r}
 prior_parameters <- list(shape1 = 1, shape2 = 1) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
@@ -172,35 +207,37 @@ bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = rep("prior", length(bins)),
-  theta = bins,
+  helpingness = bins,
   density = dbeta(x = bins, shape1 = prior_parameters$shape1,
           shape2 = prior_parameters$shape2)
 ) %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An uninformed prior distribution")
+  ggtitle("An uninformed prior distribution")+
+  theme_classic()
 
 ```
 
-Here, all values of $\theta$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
+Here, all values of $helpingness$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
 
 ```{r}
 prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
 
 data.frame(
   src = rep("prior", length(bins)),
-  theta = bins,
+  helpingness = bins,
   density = dbeta(x = bins, shape1 = prior_parameters$shape1,
           shape2 = prior_parameters$shape2)
 ) %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An informed prior distribution")
+  ggtitle("An informed prior distribution") +
+  theme_classic()
 
 ```
 
 
-Under this prior distribution, our best guess (*before having seen the data from our experiment*) is that $\theta$ is around 0.25, though we do not have super strong beliefs about this. This kind of informed prior could be used when the scientist has indendently justified beliefs about $\theta$ (e.g., via a meta-analysis of the prior literature).
+Under this prior distribution, our best guess (*before having seen the data from our experiment*) is that $helpingness$ is around 0.25, though we do not have super strong beliefs about this. This kind of informed prior could be used when the scientist has indendently justified beliefs about $helpingness$ (e.g., via a meta-analysis of the prior literature).
 
 ### A likelihood distribution
 
@@ -221,7 +258,8 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))
+  ggtitle(paste("P(d | helpingness = ",hypothetical_true_population_parameter ,")", sep = ""))+
+  theme_classic()
 ```
 
 Here we see the likeilhood of the observed outcomes (number of kids who help) assuming that the underlying parameter $\theta$ has a value of 0.3. We can look at the likelihood distribution assuming different values of $\theta$.
@@ -232,7 +270,7 @@ hypothetical_true_population_parameter <- 0.3
 data_bins <- seq(0, 25, 1)
 
 data.frame(
-  src = paste("P(d | theta = ", c(
+  src = paste("P(d | helpingness = ", c(
     rep(0.1, length(data_bins)),
     rep(0.3, length(data_bins)),
     rep(0.5, length(data_bins)),
@@ -252,8 +290,10 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  facet_wrap(~src, nrow = 1)
+  facet_wrap(~src, nrow = 1)+
+  theme_classic()
 ```
+
 Here we see different (probabilistic) predictions about what the data should look if the underlying parameter had a particular value. You can think of the different parameter values as different hypotheses, which make more or less strong predictions about the observed data would look like. For example, notice how when theta = 0.9 or 0.1 the predictions are much less spread out in comparison to the theta = 0.5.
 
 We have now specified a likelihood distribution (or rather, a family of likelihood distributions). We can now use Bayes Theorem to inverse the direction of inference: rather than looking at what the data should look like assuming different parameter values, we can ask what the parameter should look like assuming a particular observed data set.
@@ -285,7 +325,7 @@ data.frame(
     rep("posterior",length(bins)), 
     rep("prior", length(bins))
     ),
-  theta = c(bins, bins),
+  helpingness = c(bins, bins),
   density = c(
     dbeta(x = bins, shape1 = posterior_parameters$shape1,
           shape2 = posterior_parameters$shape2),
@@ -296,8 +336,9 @@ data.frame(
 
 
 df_posterior %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
+  geom_line()+
+  theme_classic()
 
 ```
 
@@ -313,7 +354,7 @@ The most likely value is referred to as the *Maximum A-Posteriori* (or, MAP) val
 df_posterior %>%
   filter(src == "posterior") %>%
   summarize(
-    MAP = theta[which.max(density)]
+    MAP = helpingness[which.max(density)]
   )
 ```
 
@@ -325,7 +366,7 @@ Since the posterior distribution encodes our degrees of belief about all values 
 df_posterior %>%
   filter(src == "posterior") %>%
   mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
-  filter(theta > 0.5) %>%
+  filter(helpingness > 0.5) %>%
   summarize(
     prob_gt_0.5 = sum(norm_prob)
   )
@@ -373,7 +414,7 @@ data.frame(
     rep("posterior",length(bins)), 
     rep("prior", length(bins))
     ),
-  theta = c(bins, bins),
+  helpingness = c(bins, bins),
   density = c(
     dbeta(x = bins, 
           shape1 = informed_posterior_parameters$shape1,
@@ -386,8 +427,9 @@ data.frame(
 
 
 df_posterior_informed %>%
-  ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  ggplot(., aes( x = helpingness, y = density, linetype = src))+
+  geom_line()+
+  theme_classic()
 ```
 
 The results look (visually) similar. Let's look at our various summary statistics:
@@ -398,7 +440,7 @@ The results look (visually) similar. Let's look at our various summary statistic
 df_posterior_informed %>%
   filter(src == "posterior") %>%
   summarize(
-    MAP = theta[which.max(density)]
+    MAP = helpingness[which.max(density)]
   )
 ```
 
@@ -408,7 +450,7 @@ df_posterior_informed %>%
 df_posterior_informed %>%
   filter(src == "posterior") %>%
   mutate(norm_prob = density / sum(density)) %>% # this calculation is technically an integral (not a sum), but we can approximate it by normalizing the density values into probabilities
-  filter(theta > 0.5) %>%
+  filter(helpingness > 0.5) %>%
   summarize(
     prob_gt_0.5 = sum(norm_prob)
   )
