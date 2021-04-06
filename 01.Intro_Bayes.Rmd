@@ -64,7 +64,8 @@ data.frame(x = possible_outcomes,
            y = dbinom(x= possible_outcomes, size = 15, prob = 0.7) ) %>%
   ggplot(., aes( x, y))+
   geom_col()+
-  labs(x = "Number of heads", y = "Probability mass")
+  labs(x = "Number of heads", y = "Probability mass")+
+  theme_classic()
 ```
 
 
@@ -86,7 +87,8 @@ data.frame(x = possible_probabilities,
            y = dbeta(x= possible_probabilities, shape1 = 3, shape2 = 2) ) %>%
   ggplot(., aes( x, y))+
   geom_line()+
-  labs(x = "Weight of a coin", y = "Probability density")
+  labs(x = "Weight of a coin", y = "Probability density")+
+  theme_classic()
 ```
 
 **Question: What is/are the difference(s) between the two distributions shown above?**
@@ -188,7 +190,11 @@ Bayes Rule tells us, mathematically, what we should believe about `helpfulness` 
 $$
 P(\theta \mid  d) \propto P(d \mid \theta) \times P(\theta)
 $$
+Let's try to rewrite that in a slightly more readable way by saying:
 
+$$
+P(\text{helpingness} \mid  \text{data}) \propto P(\text{data} \mid \text{helpingness}) \times P(\text{helpingness})
+$$
 ### A prior distribution
 
 The prior distribution $P(\theta)$ encodes our expectations about the underlying parameter. What do we know about `theta` (kids' propensity to help in our experimental context)? One very reasonable thing to assume is that we do not know anything! This results in what is referred to as an *uninformative prior*. Since the propensity to help is itself a probability (or, proportion), it must be a number between 0 and 1, but beyond that, we do not need to assume anything about what values are more likely than others. This results in a very boring distribution.
@@ -206,7 +212,8 @@ data.frame(
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An uninformed prior distribution")
+  ggtitle("An uninformed prior distribution")+
+  theme_classic()
 
 ```
 
@@ -223,7 +230,8 @@ data.frame(
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An informed prior distribution")
+  ggtitle("An informed prior distribution") +
+  theme_classic()
 
 ```
 
@@ -249,7 +257,8 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))
+  ggtitle(paste("P(d | theta = ",hypothetical_true_population_parameter ,")", sep = ""))+
+  theme_classic()
 ```
 
 Here we see the likeilhood of the observed outcomes (number of kids who help) assuming that the underlying parameter $\theta$ has a value of 0.3. We can look at the likelihood distribution assuming different values of $\theta$.
@@ -280,7 +289,8 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  facet_wrap(~src, nrow = 1)
+  facet_wrap(~src, nrow = 1)+
+  theme_classic()
 ```
 
 Here we see different (probabilistic) predictions about what the data should look if the underlying parameter had a particular value. You can think of the different parameter values as different hypotheses, which make more or less strong predictions about the observed data would look like. For example, notice how when theta = 0.9 or 0.1 the predictions are much less spread out in comparison to the theta = 0.5.
@@ -326,7 +336,9 @@ data.frame(
 
 df_posterior %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  geom_line()+
+  theme_classic()
+
 ```
 
 The posterior distribution encodes the methematically correct beliefs about the parameter given the prior, the likelihood, and the observed data. 
@@ -415,7 +427,8 @@ data.frame(
 
 df_posterior_informed %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
-  geom_line()
+  geom_line()+
+  theme_classic()
 ```
 
 The results look (visually) similar. Let's look at our various summary statistics:
