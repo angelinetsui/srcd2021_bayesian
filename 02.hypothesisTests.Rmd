@@ -18,6 +18,7 @@ link-citations: yes
 ```{r, echo=FALSE}
 library(knitr)
 library(tidyverse)
+library(BayesFactor)
 opts_chunk$set(echo=TRUE, 
                warning=FALSE, message=FALSE, 
                cache=FALSE)
@@ -28,10 +29,6 @@ This document is developed by [MH Tessler](mailto:michael.h.tessler@gmail.com), 
 # Introduction
 
 This short tutorial covers some basic concepts of hypothesis testing and how to calculate Bayes Factors in R.
-
-<!-- We will use the following tools: -->
-
-<!-- * R, R Studio, R Markdown, and the tidyverse, brms R packages) -->
 
 ## Learning goals
 
