@@ -213,20 +213,22 @@ post_pdf_default <- mcmc_areas(posterior_default,
 post_pdf_default
 
 ```
-This plot shows the densities of four important parameter estimates. For each density, the dark blue line represents the point estimate (median) and light blue area represents the 95% credibility intervals. We can use this to get a sense of which parameter(s) has/have a posterior distribution(s) that does not contain zero and how wide the distribution (flat or pointy). 
+This plot shows the densities of four important parameter estimates. For each density, the dark blue line represents the point estimate (median) and light blue area represents the 95% credibility intervals. We can use this to get a sense of which parameters have posterior distributions that do not contain zero as well as how wide or diffuse the distribution is (e.g., is it flat or is it pointy). 
 
-Thus far, we did the Bayesian analysis using the default priors. But an important feature of Bayesian analysis is that we can incoporate our priors in our analysis. 
+Thus far, we performed the Bayesian analysis using the default priors. But an important feature of Bayesian analysis is that we can incoporate our prior expectations into our analysis. 
 
 ### Step 3: Incoporate priors in our analyses
 
-Let us take a look at how many prior parameters that we need to set up. 
+Let us take a look at how many parameters our model has for which we can specify priors.
+
 ```{r}
 get_prior(looking_time ~ center_age_mo * IDS, data = mb1_data)
 ```
 
-Note that it also tells us the default priors that we were using in the previous model. For simplicity, let us set the same priors for all coefficients and variances.
+Note that this also tells us the we were using default priors in the previous model. For simplicity, let us set the same priors for all coefficients and variances.
 
 Set up priors like this
+
 ```{r}
 priors <- c(prior(normal(2, 1), class = Intercept), #we expect mean looking time = 2sec as this is the min looking time for the experiment         
             prior(normal(0, 0.5), class = b),
