@@ -13,7 +13,6 @@ output:
     citation_package: natbib
     latex_engine: pdflatex
 link-citations: yes
-bibliography: library.bib
 ---
 
 ```{r, echo=FALSE}
@@ -38,9 +37,9 @@ This short tutorial covers some basic concepts of hypothesis testing and how to 
 
 By the end of this session, you will have a basic understanding of the following:
 
-* **Bayesian perspective on hypothesis testing** 
-* **Bayes Factors quantify evidence in support (or against) a hypothesis** 
+* **The Bayesian perspective on hypothesis testing** 
 * **How to compute a Bayes Factor in R** 
+* **Bayes Factors quantify evidence in support (or against) a hypothesis** 
 * **The sensitivity of the Bayes Factor to the prior distribution (on parameters)** 
 
 # Testing hypothesis
@@ -62,6 +61,7 @@ For purposes of hypothesis testing, we are generally interested in comparing the
 $$
 \frac{P(H_1 \mid D)}{P(H_2 \mid D)} \propto \frac{P(D \mid H_1)}{P(D \mid H_2)} \times \frac{P(H_1)}{P(H_2)}
 $$
+
 ## Posterior Model Odds
 
 The term on the left-hand side ($\frac{P(H_1 \mid D)}{P(H_2 \mid D)}$) refers to the relative probability of $H_1$ in comparison to $H_2$ in light of the observed data $D$. This ratio, termed the *posterior model odds*, is the kind of quantity we would like -- in an ideal world -- to use to grow scientific knowledge: pursuing the hypotheses that are most likely given the data.
@@ -73,27 +73,112 @@ The trouble with the *posterior model odds*, as revealed by the formula above, i
 Since *posterior model odds* are difficult to assess in a non-subjective manner, scientists and statisticians instead have gravitated towards the first term on the right hand-side of the equation above, the likelihood ratio: $\frac{P(D \mid H_1)}{P(D \mid H_2)}$. This ratio, which is what is known as the **Bayes Factor** (or, BF), quantifies the comparison of how well each hypothesis predicts the data. The Bayes Factor does not depend upon one's prior beliefs about the hypotheses. 
 
 
-### Calculating Bayes Factors
+# Play around with the `BayesFactor` package
 
-The likelihood terms that enter into the Bayes Factor calculations are the *marginal likelihood of the data* under each hypothesis. We call this likelihood the "marginal likelihood" because it is the number arrived at when you *marginalize* (or, average) over the prior distribution on parameters for that model. Concretely,
-
-$$P(D \mid H_1) = \int_{\theta} P(D \mid \theta) \times P(\theta \mid H_1) d\theta$$
-Let's read this formula from right to left. $P(\theta \mid H_1)$ is the prior distribution over the parameter $\theta$ as specified by hypothesis $H_1$. For instance, in the previous section, we looked at how different prior distributions over parameters affect the posterior distribution on parameters. The way to think about this is that a hypothesis comes with (or, is specified via) commitments about the parameter(s) of the hypothesis; these commitments can be loose (e.g., an uninformative prior on the parameter), but nevertheless, they must be explicit.
+The `BayesFactor` package is a useful resource for computing Bayes Factors for familiar hypothesis tests. See the [project page](https://richarddmorey.github.io/BayesFactor/) for complete information about this package 
 
 ```{r}
-prior_parameters <- list(shape1 = 1, shape2 = 1) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+library(BayesFactor)
+```
+
+
+First, let's look at a simple binomial test for some number of successes (`observed_yes`) out of some number of trials (`number_of_observations`).
+
+```{r}
+observed_yes <- 7
+number_of_observations <- 25
+
+binom.test(x = observed_yes, 
+           n = number_of_observations, 
+           p = 0.5)
+```
+
+The Bayes Factor function has almost identical syntax.
+
+```{r}
+proportionBF(y = observed_yes, 
+             N = number_of_observations, 
+             p = 0.5)
+```
+
+One sided Bayesian binomial test.
+
+```{r}
+proportionBF(y = observed_yes, 
+             N = number_of_observations, 
+             p = 0.5,
+             nullInterval = c(0, 0.5))
+```
+
+## Interpreting Bayes Factors
+
+How high (or, low) does the Bayes Factor need to be to provide evidence for one hypothesis over another? We will go into this in more detail below but the BF is a continuous measure of evidence; literally, if $BF > 1$ or $BF < 1$, there is some evidence in favor of one hypothesis over another. 
+
+But still, you might ask, how much evidence is sufficient to publish a result? Just like setting a threshold for p-values (e.g., 0.05, 0.01, 0.001,...), it is a tricky business. The British mathematician at the heart of the Bayesian statistical revivial, [Sir Harold Jeffreys](https://en.wikipedia.org/wiki/Harold_Jeffreys), laid out the following interpretative scale:
+
+Evidence in favor of $H_1$ (numerator hypothesis) over $H_2$ (denominator hypothesis)
+
+- 1-3: "Barely worth mentioning"
+- 3-10: "Substantial"
+- 10-30: "Strong"
+- 30-100: "Very strong"
+- $>100$: "Decisive"
+
+
+## Comparison to p-values
+
+Play around with with `binom.text` and `proportionBF` above. Try adjusting the number of successes (`observed_yes`). 
+
+**Questions**
+
+1. According to Jeffreys' scale, how much evidence corresponds to a p-value of 0.05? (This will in general depend upon sample size, or `number_of_observations`, so let's fix that to e n = 25 for now.)
+
+2. Think about your own statistical practices. How does being on one side or the other of the p-value threshold affect your reasoning about your data? How might it be different if you used BFs instead of p-values? How might it be different if you examined both p-values and BFs?
+
+
+# Deeper understanding of Bayes Factors
+
+Let's return to our definition of the Bayes Factor
+
+$$
+BF_{12} =\frac{P(D \mid H_1)}{P(D \mid H_2)}
+$$
+
+Note that the Bayes Factor is a ratio, and it is arbitrary which term we use as the numerator and which term we use as the denominator. By convention, $BF_{12}$ means the ratio of the likelihood of the data under $H_1$ relative to $H_2$. $BF_{21}$ would mean the opposite ratio:
+
+$$
+BF_{21} =\frac{P(D \mid H_2)}{P(D \mid H_1)}
+$$
+
+Also note that BFs are often introduced by comparing $H_1$ to $H_0$ (our familiar, friendly, null hypothesis). The numbers are arbitrary. If you'd like, you can consider $H_2$ to be the null hypothesis.
+
+## Calculating Bayes Factors
+
+The likelihood terms that enter into the Bayes Factor calculations $P(D \mid H)$ are the *marginal likelihood of the data* under each hypothesis. We saw these in the first session when we were estimating parameters of the model. We said that these marginal likelihoods are generally not of interest, except for hypothesis testing (model comparison). 
+
+We call this likelihood the "marginal likelihood" because it is the number arrived at when you *marginalize* (or, average) over the prior distribution on parameters for that model. Concretely,
+
+$$P(D \mid H_1) = \int_{\theta} P(D \mid \theta) \times P(\theta \mid H_1) d\theta$$
+Let's read this formula from right to left. $P(\theta \mid H_1)$ is the prior distribution over the parameter $\theta$ as specified by hypothesis $H_1$. For instance, in the previous section, we looked at how different prior distributions over `helpingness` affect the posterior distribution on parameters. The way to think about this is that a hypothesis comes with (or, is specified via) commitments about the parameter(s) of the hypothesis; these commitments can be loose (e.g., an uninformative prior on the parameter), but nevertheless, they must be explicit.
+
+```{r}
+prior_parameters <- list(shape1 = 1, shape2 = 1) 
+# as shape1 increases, prior will favor higher numbers
+# as shape2 increases, prior will favor lower numbers
 
 bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = rep("prior", length(bins)),
   theta = bins,
-  density = dbeta(x = bins, shape1 = prior_parameters$shape1,
-          shape2 = prior_parameters$shape2)
+  density = dbeta(x = bins, 
+                  shape1 = prior_parameters$shape1,
+                  shape2 = prior_parameters$shape2)
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("An uninformed prior distribution")
+  ggtitle("An uninformed prior distribution")+
+  theme_classic()
 
 ```
 
@@ -124,13 +209,14 @@ data.frame(
   geom_col()+
   xlab("hypothetical data (positive observations)")+
   ylab("probability mass")+
-  facet_wrap(~src, nrow = 1)
+  facet_wrap(~src, nrow = 1)+
+  theme_classic()
 ```
 
 Finally, we have an integral $\int_{\theta}... d\theta$, which can also be thought of as a sum $\sum_\theta$, which averages over all of the likelihood values computed. This marginalization (averaging) is a key step. We evaluate hypotheses by how well the hypothesis predicts the data *on average*, averaging over the hypotheses' prior expectations about the parameters. This averaging over the prior distribution on parameters has the effect of penalizing *vague* or flexible or underspecified hypotheses.
 
 
-#### Computing the marginal likelihood
+### Computing the marginal likelihood
 
 Let's consider again the scenario from the previous session. We ran a 2AFC experiment with n = 25 participants, and k = 17 of the participants gave the positive response (e.g., children deciding to help). 
 
@@ -144,13 +230,15 @@ To calculate the marginal likelihood, we average over all values of $\theta$ (`p
 
 ```{r}
 theta_values <- seq(0.01, 0.99, 0.01)
-likelihood_values <- dbinom(x = 17, size = 25, prob = theta_values)
+likelihood_values <- dbinom(x = 17, 
+                            size = 25, 
+                            prob = theta_values)
 marginal_likelihood <- mean(likelihood_values)
 ```
 
 So now we have the marginal likelihood of the data given a single hypothesis. That hypothesis is that the parameter came from a uniform prior distribution. 
 
-#### Comparing to an alternative (or null) hypothesis
+### Comparing to an alternative (or null) hypothesis
 
 One vary natural comparison we might be interested in is how this compares to the assumption that the parameter is fixed to be 0.5. $\theta = 0.5$ would be the common way of formalizing that the there is no effect in a manipulation or that participants are "at chance". We can quantify evidence in support or against this null, alternative hypothesis by calculating the marginal likelihood of the data under that hypothesis. 
 
@@ -158,7 +246,9 @@ This null hypothesis is very simple, since $\theta$ does not take on a range of 
 
 ```{r}
 null_theta_value = 0.5
-null_marginal_likelihood = dbinom(x = 17, size = 25, prob = null_theta_value)
+null_marginal_likelihood = dbinom(x = 17, 
+                                  size = 25, 
+                                  prob = null_theta_value)
 null_marginal_likelihood
 ```
 
@@ -170,7 +260,7 @@ marginal_likelihood / null_marginal_likelihood
 
 
 
-### Understanding Bayes Factors
+## Understanding Bayes Factors
 
 The Bayes Factor is a ratio of probabilities. If $BF = 1$, that means $P(D \mid H_1) = P(D \mid H_2)$; in other words, the hypotheses do an equally good (or bad) job at predicting the data. Thus, the data does not favor one hypothesis over an other. 
 
@@ -178,30 +268,7 @@ If $BF > 1$ or $BF < 1$, it is important to check which hypothesis is in the num
 
 Above, we found the data (k = 17 successes out of n = 25 attempts) is `r marginal_likelihood / null_marginal_likelihood` more likely under the alternative hypothesis than under the null hypothesis.
 
-### Interpreting Bayes Factors
 
-How high (or, low) does the Bayes Factor need to be to provide evidence for one hypothesis over another? As we noted abovce, the BF is a continuous measure of evidence; literally, if $BF > 1$ or $BF < 1$, there is some evidence in favor of one hypothesis over another. 
-
-But still, you might ask, how much evidence is sufficient to publish a result? Just like setting a threshold for p-values (e.g., 0.05, 0.01, 0.001,...), it is a tricky business. The British mathematician at the heart of the Bayesian statistical revivial, [Sir Harold Jeffreys](https://en.wikipedia.org/wiki/Harold_Jeffreys), laid out the following interpretative scale:
-
-Evidence in favor of $H_1$ (numerator hypothesis) over $H_2$ (denominator hypothesis)
-- 1-3: "Barely worth mentioning"
-- 3-10: "Substantial"
-- 10-30: "Strong"
-- 30-100: "Very strong"
-- >100: "Decisive"
-
-
-### Comparison to p-values
-
-The evidence in favor of the alternative hypothesis over the null hypothesis given k = 17 successes out of n = 25 attempts is `r marginal_likelihood / null_marginal_likelihood`; according to Jeffreys' demarcations, it is "barely worth mentioning". How does this stack up with a standard Fisher's binomial test? 
-
-
-```{r}
-binom.test(x = 17, n = 25, p = 0.5)
-```
-
-Here we find the p-value is 0.1078, which according to the frequentist procedure does not provide enough evidence to reject the null hypothesis. In this situation, the frequentist and the Bayesian methods produce similar results. But what if one more child had produced a positive response (i.e., "helped" in our prosocial context)? What would the p-value have been? What about the Bayes Factor? 
 
 
 ## The Bayes Factor is sensitive to the prior distribution over parameters
@@ -211,36 +278,54 @@ You may find that the Bayes Factor is more conservative than the p-value (at lea
 We saw above how the Bayes Factor results from the marginal likelihoods under the null and alternative hypothesis. For the null, this was simply the likelihood of the data assuming a parameter value of 0.5. For the alternative hypothesis, we specified a uniform prior over possible values of the parameter. This is an uninformative prior, but it may also be unrealistic. For example, should we really expect 90-100% of children helping to be as likely as between 60-70% helping? 
 
 ```{r}
-alternative_prior_parameters <- list(shape1 = 3, shape2 = 3) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
+alternative_prior_parameters <- list(shape1 = 3, shape2 = 3) 
+# as shape1 increases, prior will favor higher numbers
+# as shape2 increases, prior will favor lower numbers
 
 bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = rep("prior", length(bins)),
   theta = bins,
-  density = dbeta(x = bins, shape1 = alternative_prior_parameters$shape1,
-          shape2 = alternative_prior_parameters$shape2)
+  density = dbeta(x = bins, 
+                  shape1 = alternative_prior_parameters$shape1,
+                  shape2 = alternative_prior_parameters$shape2)
 ) %>%
   ggplot(., aes( x = theta, y = density, linetype = src))+
   geom_line()+
-  ggtitle("A more realistic prior distribution for the alternative hypothesis?")
+  ggtitle("A more realistic prior distribution for the alternative hypothesis?")+
+  theme_classic()
 ```
 
 Changing the prior distribution over the parameters for one of the hypotheses will change the marginal likelihood of the data under that hypothesis, and thus change the Bayes Factor:
 
 ```{r}
 theta_values <- seq(0.01, 0.99, 0.01)
-likelihood_values <- dbinom(x = 17, size = 25, prob = theta_values)
-prior_probabilities <- dbeta(x = theta_values, 
-                            shape1 = alternative_prior_parameters$shape1,
-                            shape2 = alternative_prior_parameters$shape2)
+likelihood_values <- dbinom(
+  x = 17, 
+  size = 25, 
+  prob = theta_values
+  )
 
-alternative_marginal_likelihood <- sum((likelihood_values * prior_probabilities) / sum(prior_probabilities))
+prior_probabilities <- dbeta(
+  x = theta_values, 
+  shape1 = alternative_prior_parameters$shape1,
+  shape2 = alternative_prior_parameters$shape2
+  )
+
+alternative_marginal_likelihood <- sum(
+  (likelihood_values * prior_probabilities) / 
+    sum(prior_probabilities)
+  )
 ```
 
 ```{r}
 null_theta_value = 0.5
-null_marginal_likelihood = dbinom(x = 17, size = 25, prob = null_theta_value)
+null_marginal_likelihood = dbinom(
+  x = 17, 
+  size = 25, 
+  prob = null_theta_value
+  )
 null_marginal_likelihood
 ```
 
@@ -252,34 +337,36 @@ alternative_marginal_likelihood  / null_marginal_likelihood
 
 By changing the prior distribution over parameters for the alterantive hypothesis, we have effectively made this alternative hypothesis more specific. Before, any parameter value was equally as likely as any other. But now, we are encoding our expectations that the parameter value is unlikely to be very far away from 0.5. Then, our observed data (k = 17 out of n = 25) is relatively less suprising for this hypothesis, because it encodes the expectation that data close to 50% are more likely than data further away from 50%. 
 
+
+### Specifying different priors on parameters in `BayesFactor`
+
+The Bayes Factor functions in the `BayesFactor` package come with a number of alternative prior distribution for parameters in the models. In `proportionBF`, this is the `rscale` parameter. 
+
+Here is the information from the documentation of this function:
+
+> The Bayes factor provided by proportionBF tests the null hypothesis that the probability of a success is p_0 (argument p). Specifically, the Bayes factor compares two hypotheses: that the probability is p_0, or probability is not p_0. Currently, the default alternative is that
+
+> $\lambda \sim logistic(\lambda_0,r)$
+> where $lambda_0=logit(p_0)$ and $lambda=logit(p)$. r serves as a prior scale parameter.
+
+> For the rscale argument, several named values are recognized: "medium", "wide", and "ultrawide". These correspond to r scale values of 1/2, sqrt(2)/2, and 1, respectively.
+
+**Practice: Try out `proportionBF` with different values for the rscale parameter. Interpret the results.**
+
+```{r}
+proportionBF(
+  y = observed_yes, 
+   N = number_of_observations, 
+   p = 0.5,
+   rscale = "medium"
+  )
+```
+
 ### The double-edged sword of the BF's sensitivity to the prior on parameters
 
 The fact that the BF is sensitive to the hypotheses' prior distribution over parameters is a good thing. By averaging over the prior distribution over parameters, the marginal likelihood (and hence the Bayes Factor) implicitly penalizes hypotheses that are more vague, hypotheses that are less specific. This is what is sometimes called "Bayes Occams' Razor" We want to choose the least complex hypothesis that predicts the data well. 
 
 The flip-side is that the prior distribution over parameters can often be difficult and subjective to specify. For certain simple tests (like binomial tests or other standard statistical tests), there are often what are called "default priors", which are generally accepted in the scientific community as being reasonable for articulating alternative hypotheses in a null hypothesis testing setting. The best thing to do when you aren't confident in your articulation of the prior on parameters is to try out a few and see how sensitive the Bayes Factor is to your articulation of the prior on parameters. The more compelling your data is, the less sensitive the prior it will be. This is what is called a "sensitivity analysis".
 
-More broadly, the Bayesian approach points the way towards articulating (and rewarding) more precisely specified hypotheses. This can be achieved in a number of ways, such becoming more familiar with the implications of different choices of priors. One very powerful way of articulating precise hypotheses is via formal, computational models of cognitive processes, such as those explored in the Bayesian cognitive modeling tradition: see probmods.org or problang.org for examples of this kind of modeling. 
+More broadly, the Bayesian approach points the way towards articulating (and rewarding) more precisely specified hypotheses. This can be achieved in a number of ways, such becoming more familiar with the implications of different choices of priors. One very powerful way of articulating precise hypotheses is via formal, computational models of cognitive processes, such as those explored in the Bayesian cognitive modeling tradition: see [probmods.org](probmods.org) or [problang.org](problang.org) for examples of this kind of modeling. 
 
-
-# Play around with the BayesFactor package
-
-First the frequentist test.
-```{r}
-observed_yes <- 7
-number_of_observations <- 25
-
-binom.test(x = observed_yes, n = number_of_observations, p = 0.5)
-```
-
-Now the Bayesian test.
-
-```{r}
-proportionBF(y = observed_yes, N = number_of_observations, p = 0.5)
-```
-
-One sided Bayesian binomial test.
-
-```{r}
-proportionBF(y = observed_yes, N = number_of_observations, p = 0.5,
-             nullInterval = c(0, 0.5))
-```
