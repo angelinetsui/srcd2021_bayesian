@@ -188,8 +188,8 @@ Bayes_model_default <- brm(looking_time ~ center_age_mo * IDS +
                      cores = 2,
                      chains = 2, 
                      seed = 123,
-                     save_all_pars = TRUE, 
-                     control = list(adapt_delta = 0.999),
+                     save_pars = save_pars(all = T), 
+                     control = list(adapt_delta = 0.95),
                      file="mb1_bayes.mod")
 
 
@@ -229,7 +229,7 @@ Note that it also tells us the default priors that we were using in the previous
 Set up priors like this
 ```{r}
 priors <- c(prior(normal(2, 1), class = Intercept), #we expect mean looking time = 2sec as this is the min looking time for the experiment         
-            prior(normal(0, 0.5), class = b),
+            prior(normal(0, 0.5), class = b), #our main concern is modeling the interaction term, which we expect to be relatively small
             prior(normal(0, 1), class = sigma))  
 ```
 
@@ -244,8 +244,8 @@ Bayes_model_priors <- brm(looking_time ~ center_age_mo * IDS +
                    cores = 2,
                    chains = 2, 
                    seed = 456,
-                   save_all_pars = TRUE, 
-                   control = list(adapt_delta = 0.999),
+                   save_pars = save_pars(all = T), 
+                   control = list(adapt_delta = 0.95),
                    file="mb1_bayes_priors.mod")
 
 print(summary(Bayes_model_priors), digits = 3)
