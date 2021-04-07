@@ -19,8 +19,8 @@ link-citations: yes
 library(knitr)
 library(tidyverse)
 library(BayesFactor)
-opts_chunk$set(echo=TRUE, 
-               warning=FALSE, message=FALSE, 
+opts_chunk$set(echo=TRUE,
+               warning=FALSE, message=FALSE,
                cache=FALSE)
 ```
 
@@ -34,16 +34,16 @@ This short tutorial covers some basic concepts of hypothesis testing and how to 
 
 By the end of this session, you will have a basic understanding of the following:
 
-* **The Bayesian perspective on hypothesis testing** 
-* **How to compute a Bayes Factor in R** 
-* **Bayes Factors quantify evidence in support (or against) a hypothesis** 
-* **The sensitivity of the Bayes Factor to the prior distribution (on parameters)** 
+* **The Bayesian perspective on hypothesis testing**
+* **How to compute a Bayes Factor in R**
+* **Bayes Factors quantify evidence in support (or against) a hypothesis**
+* **The sensitivity of the Bayes Factor to the prior distribution (on parameters)**
 
 # Testing hypothesis
 
 As developmental psychologists, we are often in the business of designing experiments to test hypotheses, but what do we mean exactly by "test hypotheses"? Classically, the (frequentist) statistical approach to hypothesis testing concerns procedures that result in a categorical decision, such as whether to reject a hypothesis, accept it as true or to withhold judgement because no decision can be made currently. The most popular decision procedures appeal to the statistic known as the "p-value", which quantifies some measure of the probability of the data observed in the experiment assuming a hypothesis is true. The procedure typically goes that when the p-value is sufficiently small (e.g., $< 0.05$), the decision can be made to reject the hypothesis.
 
-The Bayesian approach to hypothesis testing is slightly different. Rather than be concerned with categorical decisions, Bayesian methods aim to quantify the amount of evidence in favor or against a hypothesis. Decision rules can then be applied to this quantification of evidence (e.g., if the amount of evidence in support of a hypothesis is sufficiently great, we might accept the hypothesis as true), but they can also be evaluated on their own terms (e.g., a hypothesis being 10x as likely as another is not as compelling as a hypothsis that is 100x as likely).
+The Bayesian approach to hypothesis testing is slightly different. Rather than be concerned with categorical decisions, Bayesian methods aim to quantify the amount of evidence in favor or against a hypothesis. Decision rules can then be applied to this quantification of evidence (e.g., if the amount of evidence in support of a hypothesis is sufficiently great, we might accept the hypothesis as true), but they can also be evaluated on their own terms (e.g., a hypothesis being 10x as likely as another is not as compelling as a hypothesis that is 100x as likely).
 
 # Bayesian Background
 
@@ -67,12 +67,12 @@ The trouble with the *posterior model odds*, as revealed by the formula above, i
 
 ## Bayes Factors
 
-Since *posterior model odds* are difficult to assess in a non-subjective manner, scientists and statisticians instead have gravitated towards the first term on the right hand-side of the equation above, the likelihood ratio: $\frac{P(D \mid H_1)}{P(D \mid H_2)}$. This ratio, which is what is known as the **Bayes Factor** (or, BF), quantifies the comparison of how well each hypothesis predicts the data. The Bayes Factor does not depend upon one's prior beliefs about the hypotheses. 
+Since *posterior model odds* are difficult to assess in a non-subjective manner, scientists and statisticians instead have gravitated towards the first term on the right hand-side of the equation above, the likelihood ratio: $\frac{P(D \mid H_1)}{P(D \mid H_2)}$. This ratio, which is what is known as the **Bayes Factor** (or, BF), quantifies the comparison of how well each hypothesis predicts the data. The Bayes Factor does not depend upon one's prior beliefs about the hypotheses.
 
 
 # Play around with the `BayesFactor` package
 
-The `BayesFactor` package is a useful resource for computing Bayes Factors for familiar hypothesis tests. See the [project page](https://richarddmorey.github.io/BayesFactor/) for complete information about this package 
+The `BayesFactor` package is a useful resource for computing Bayes Factors for familiar hypothesis tests. See the [project page](https://richarddmorey.github.io/BayesFactor/) for complete information about this package
 
 ```{r}
 library(BayesFactor)
@@ -85,33 +85,33 @@ First, let's look at a simple binomial test for some number of successes (`obser
 observed_yes <- 7
 number_of_observations <- 25
 
-binom.test(x = observed_yes, 
-           n = number_of_observations, 
+binom.test(x = observed_yes,
+           n = number_of_observations,
            p = 0.5)
 ```
 
 The Bayes Factor function has almost identical syntax.
 
 ```{r}
-proportionBF(y = observed_yes, 
-             N = number_of_observations, 
+proportionBF(y = observed_yes,
+             N = number_of_observations,
              p = 0.5)
 ```
 
 One sided Bayesian binomial test.
 
 ```{r}
-proportionBF(y = observed_yes, 
-             N = number_of_observations, 
+proportionBF(y = observed_yes,
+             N = number_of_observations,
              p = 0.5,
              nullInterval = c(0, 0.5))
 ```
 
 ## Interpreting Bayes Factors
 
-How high (or, low) does the Bayes Factor need to be to provide evidence for one hypothesis over another? We will go into this in more detail below but the BF is a continuous measure of evidence; literally, if $BF > 1$ or $BF < 1$, there is some evidence in favor of one hypothesis over another. 
+How high (or, low) does the Bayes Factor need to be to provide evidence for one hypothesis over another? We will go into this in more detail below but the BF is a continuous measure of evidence; literally, if $BF > 1$ or $BF < 1$, there is some evidence in favor of one hypothesis over another.
 
-But still, you might ask, how much evidence is sufficient to publish a result? Just like setting a threshold for p-values (e.g., 0.05, 0.01, 0.001,...), it is a tricky business. The British mathematician at the heart of the Bayesian statistical revivial, [Sir Harold Jeffreys](https://en.wikipedia.org/wiki/Harold_Jeffreys), laid out the following interpretative scale:
+But still, you might ask, how much evidence is sufficient to publish a result? Just like setting a threshold for p-values (e.g., 0.05, 0.01, 0.001,...), it is a tricky business. The British mathematician at the heart of the Bayesian statistical revival, [Sir Harold Jeffreys](https://en.wikipedia.org/wiki/Harold_Jeffreys), laid out the following interpretative scale:
 
 Evidence in favor of $H_1$ (numerator hypothesis) over $H_2$ (denominator hypothesis)
 
@@ -124,7 +124,7 @@ Evidence in favor of $H_1$ (numerator hypothesis) over $H_2$ (denominator hypoth
 
 ## Comparison to p-values
 
-Play around with with `binom.text` and `proportionBF` above. Try adjusting the number of successes (`observed_yes`). 
+Play around with with `binom.text` and `proportionBF` above. Try adjusting the number of successes (`observed_yes`).
 
 **Questions**
 
@@ -151,7 +151,7 @@ Also note that BFs are often introduced by comparing $H_1$ to $H_0$ (our familia
 
 ## Calculating Bayes Factors
 
-The likelihood terms that enter into the Bayes Factor calculations $P(D \mid H)$ are the *marginal likelihood of the data* under each hypothesis. We saw these in the first session when we were estimating parameters of the model. We said that these marginal likelihoods are generally not of interest, except for hypothesis testing (model comparison). 
+The likelihood terms that enter into the Bayes Factor calculations $P(D \mid H)$ are the *marginal likelihood of the data* under each hypothesis. We saw these in the first session when we were estimating parameters of the model. We said that these marginal likelihoods are generally not of interest, except for hypothesis testing (model comparison).
 
 We call this likelihood the "marginal likelihood" because it is the number arrived at when you *marginalize* (or, average) over the prior distribution on parameters for that model. Concretely,
 
@@ -159,7 +159,7 @@ $$P(D \mid H_1) = \int_{\theta} P(D \mid \theta) \times P(\theta \mid H_1) d\the
 Let's read this formula from right to left. $P(\theta \mid H_1)$ is the prior distribution over the parameter $\theta$ as specified by hypothesis $H_1$. For instance, in the previous section, we looked at how different prior distributions over `helpingness` affect the posterior distribution on parameters. The way to think about this is that a hypothesis comes with (or, is specified via) commitments about the parameter(s) of the hypothesis; these commitments can be loose (e.g., an uninformative prior on the parameter), but nevertheless, they must be explicit.
 
 ```{r}
-prior_parameters <- list(shape1 = 1, shape2 = 1) 
+prior_parameters <- list(shape1 = 1, shape2 = 1)
 # as shape1 increases, prior will favor higher numbers
 # as shape2 increases, prior will favor lower numbers
 
@@ -168,7 +168,7 @@ bins <- seq(0.001, 0.999, 0.001)
 data.frame(
   src = rep("prior", length(bins)),
   theta = bins,
-  density = dbeta(x = bins, 
+  density = dbeta(x = bins,
                   shape1 = prior_parameters$shape1,
                   shape2 = prior_parameters$shape2)
 ) %>%
@@ -215,7 +215,7 @@ Finally, we have an integral $\int_{\theta}... d\theta$, which can also be thoug
 
 ### Computing the marginal likelihood
 
-Let's consider again the scenario from the previous session. We ran a 2AFC experiment with n = 25 participants, and k = 17 of the participants gave the positive response (e.g., children deciding to help). 
+Let's consider again the scenario from the previous session. We ran a 2AFC experiment with n = 25 participants, and k = 17 of the participants gave the positive response (e.g., children deciding to help).
 
 The likelihood of the data given a specific value $\theta'$ of the parameter $\theta$ is given by the Binomial distribution: $P(k = 17 \mid \theta = \theta'; n = 25)$. In R, this probability is computed via `dbinom(x = 17, size = 25, prob = theta')`
 
@@ -227,24 +227,24 @@ To calculate the marginal likelihood, we average over all values of $\theta$ (`p
 
 ```{r}
 theta_values <- seq(0.01, 0.99, 0.01)
-likelihood_values <- dbinom(x = 17, 
-                            size = 25, 
+likelihood_values <- dbinom(x = 17,
+                            size = 25,
                             prob = theta_values)
 marginal_likelihood <- mean(likelihood_values)
 ```
 
-So now we have the marginal likelihood of the data given a single hypothesis. That hypothesis is that the parameter came from a uniform prior distribution. 
+So now we have the marginal likelihood of the data given a single hypothesis. That hypothesis is that the parameter came from a uniform prior distribution.
 
 ### Comparing to an alternative (or null) hypothesis
 
-One vary natural comparison we might be interested in is how this compares to the assumption that the parameter is fixed to be 0.5. $\theta = 0.5$ would be the common way of formalizing that the there is no effect in a manipulation or that participants are "at chance". We can quantify evidence in support or against this null, alternative hypothesis by calculating the marginal likelihood of the data under that hypothesis. 
+One vary natural comparison we might be interested in is how this compares to the assumption that the parameter is fixed to be 0.5. $\theta = 0.5$ would be the common way of formalizing that the there is no effect in a manipulation or that participants are "at chance". We can quantify evidence in support or against this null, alternative hypothesis by calculating the marginal likelihood of the data under that hypothesis.
 
-This null hypothesis is very simple, since $\theta$ does not take on a range of possible values, the "prior on parameters" for this hypothesis can be thought of as putting all its probability mass on a single value: 0.5. 
+This null hypothesis is very simple, since $\theta$ does not take on a range of possible values, the "prior on parameters" for this hypothesis can be thought of as putting all its probability mass on a single value: 0.5.
 
 ```{r}
 null_theta_value = 0.5
-null_marginal_likelihood = dbinom(x = 17, 
-                                  size = 25, 
+null_marginal_likelihood = dbinom(x = 17,
+                                  size = 25,
                                   prob = null_theta_value)
 null_marginal_likelihood
 ```
@@ -259,9 +259,9 @@ marginal_likelihood / null_marginal_likelihood
 
 ## Understanding Bayes Factors
 
-The Bayes Factor is a ratio of probabilities. If $BF = 1$, that means $P(D \mid H_1) = P(D \mid H_2)$; in other words, the hypotheses do an equally good (or bad) job at predicting the data. Thus, the data does not favor one hypothesis over an other. 
+The Bayes Factor is a ratio of probabilities. If $BF = 1$, that means $P(D \mid H_1) = P(D \mid H_2)$; in other words, the hypotheses do an equally good (or bad) job at predicting the data. Thus, the data does not favor one hypothesis over an other.
 
-If $BF > 1$ or $BF < 1$, it is important to check which hypothesis is in the numerator of the Bayes Factor and which is in the denominator. For example, in the equation above, the number concerns $H_1$ and the denominator concerns $H_2$. So, if $BF = 5$, then $H_1$ is 5 times as good at predicting the data than $H_2$. If instead our Bayes Factor was written as $\frac{P(D \mid H_2)}{P(D \mid H_1)}$, then the same statistical evidence would register as $BF = \frac{1}{5} = 0.2$. 
+If $BF > 1$ or $BF < 1$, it is important to check which hypothesis is in the numerator of the Bayes Factor and which is in the denominator. For example, in the equation above, the number concerns $H_1$ and the denominator concerns $H_2$. So, if $BF = 5$, then $H_1$ is 5 times as good at predicting the data than $H_2$. If instead our Bayes Factor was written as $\frac{P(D \mid H_2)}{P(D \mid H_1)}$, then the same statistical evidence would register as $BF = \frac{1}{5} = 0.2$.
 
 Above, we found the data (k = 17 successes out of n = 25 attempts) is `r marginal_likelihood / null_marginal_likelihood` more likely under the alternative hypothesis than under the null hypothesis.
 
@@ -270,12 +270,12 @@ Above, we found the data (k = 17 successes out of n = 25 attempts) is `r margina
 
 ## The Bayes Factor is sensitive to the prior distribution over parameters
 
-You may find that the Bayes Factor is more conservative than the p-value (at least assuming a 0.05 threshold level) in many situations. Keep in mind that the p-value calculates the probability of the observed data (or data more extreme than the observed data) assuming the null hypothesis is true. The Bayes Factor, by contrast, compares the probability of the data under the null hypothesis and the alternative hypothesis. 
+You may find that the Bayes Factor is more conservative than the p-value (at least assuming a 0.05 threshold level) in many situations. Keep in mind that the p-value calculates the probability of the observed data (or data more extreme than the observed data) assuming the null hypothesis is true. The Bayes Factor, by contrast, compares the probability of the data under the null hypothesis and the alternative hypothesis.
 
-We saw above how the Bayes Factor results from the marginal likelihoods under the null and alternative hypothesis. For the null, this was simply the likelihood of the data assuming a parameter value of 0.5. For the alternative hypothesis, we specified a uniform prior over possible values of the parameter. This is an uninformative prior, but it may also be unrealistic. For example, should we really expect 90-100% of children helping to be as likely as between 60-70% helping? 
+We saw above how the Bayes Factor results from the marginal likelihoods under the null and alternative hypothesis. For the null, this was simply the likelihood of the data assuming a parameter value of 0.5. For the alternative hypothesis, we specified a uniform prior over possible values of the parameter. This is an uninformative prior, but it may also be unrealistic. For example, should we really expect 90-100% of children helping to be as likely as between 60-70% helping?
 
 ```{r}
-alternative_prior_parameters <- list(shape1 = 3, shape2 = 3) 
+alternative_prior_parameters <- list(shape1 = 3, shape2 = 3)
 # as shape1 increases, prior will favor higher numbers
 # as shape2 increases, prior will favor lower numbers
 
@@ -284,7 +284,7 @@ bins <- seq(0.001, 0.999, 0.001)
 data.frame(
   src = rep("prior", length(bins)),
   theta = bins,
-  density = dbeta(x = bins, 
+  density = dbeta(x = bins,
                   shape1 = alternative_prior_parameters$shape1,
                   shape2 = alternative_prior_parameters$shape2)
 ) %>%
@@ -299,19 +299,19 @@ Changing the prior distribution over the parameters for one of the hypotheses wi
 ```{r}
 theta_values <- seq(0.01, 0.99, 0.01)
 likelihood_values <- dbinom(
-  x = 17, 
-  size = 25, 
+  x = 17,
+  size = 25,
   prob = theta_values
   )
 
 prior_probabilities <- dbeta(
-  x = theta_values, 
+  x = theta_values,
   shape1 = alternative_prior_parameters$shape1,
   shape2 = alternative_prior_parameters$shape2
   )
 
 alternative_marginal_likelihood <- sum(
-  (likelihood_values * prior_probabilities) / 
+  (likelihood_values * prior_probabilities) /
     sum(prior_probabilities)
   )
 ```
@@ -319,8 +319,8 @@ alternative_marginal_likelihood <- sum(
 ```{r}
 null_theta_value = 0.5
 null_marginal_likelihood = dbinom(
-  x = 17, 
-  size = 25, 
+  x = 17,
+  size = 25,
   prob = null_theta_value
   )
 null_marginal_likelihood
@@ -332,12 +332,12 @@ alternative_marginal_likelihood  / null_marginal_likelihood
 ```
 
 
-By changing the prior distribution over parameters for the alterantive hypothesis, we have effectively made this alternative hypothesis more specific. Before, any parameter value was equally as likely as any other. But now, we are encoding our expectations that the parameter value is unlikely to be very far away from 0.5. Then, our observed data (k = 17 out of n = 25) is relatively less suprising for this hypothesis, because it encodes the expectation that data close to 50% are more likely than data further away from 50%. 
+By changing the prior distribution over parameters for the alternative hypothesis, we have effectively made this alternative hypothesis more specific. Before, any parameter value was equally as likely as any other. But now, we are encoding our expectations that the parameter value is unlikely to be very far away from 0.5. Then, our observed data (k = 17 out of n = 25) is relatively less surprising for this hypothesis, because it encodes the expectation that data close to 50% are more likely than data further away from 50%.
 
 
 ### Specifying different priors on parameters in `BayesFactor`
 
-The Bayes Factor functions in the `BayesFactor` package come with a number of alternative prior distribution for parameters in the models. In `proportionBF`, this is the `rscale` parameter. 
+The Bayes Factor functions in the `BayesFactor` package come with a number of alternative prior distribution for parameters in the models. In `proportionBF`, this is the `rscale` parameter.
 
 Here is the information from the documentation of this function:
 
@@ -352,8 +352,8 @@ Here is the information from the documentation of this function:
 
 ```{r}
 proportionBF(
-  y = observed_yes, 
-   N = number_of_observations, 
+  y = observed_yes,
+   N = number_of_observations,
    p = 0.5,
    rscale = "medium"
   )
@@ -361,9 +361,8 @@ proportionBF(
 
 ### The double-edged sword of the BF's sensitivity to the prior on parameters
 
-The fact that the BF is sensitive to the hypotheses' prior distribution over parameters is a good thing. By averaging over the prior distribution over parameters, the marginal likelihood (and hence the Bayes Factor) implicitly penalizes hypotheses that are more vague, hypotheses that are less specific. This is what is sometimes called "Bayes Occams' Razor" We want to choose the least complex hypothesis that predicts the data well. 
+The fact that the BF is sensitive to the hypotheses' prior distribution over parameters is a good thing. By averaging over the prior distribution over parameters, the marginal likelihood (and hence the Bayes Factor) implicitly penalizes hypotheses that are more vague, hypotheses that are less specific. This is what is sometimes called "Bayes Occam's' Razor" We want to choose the least complex hypothesis that predicts the data well.
 
 The flip-side is that the prior distribution over parameters can often be difficult and subjective to specify. For certain simple tests (like binomial tests or other standard statistical tests), there are often what are called "default priors", which are generally accepted in the scientific community as being reasonable for articulating alternative hypotheses in a null hypothesis testing setting. The best thing to do when you aren't confident in your articulation of the prior on parameters is to try out a few and see how sensitive the Bayes Factor is to your articulation of the prior on parameters. The more compelling your data is, the less sensitive the prior it will be. This is what is called a "sensitivity analysis".
 
-More broadly, the Bayesian approach points the way towards articulating (and rewarding) more precisely specified hypotheses. This can be achieved in a number of ways, such becoming more familiar with the implications of different choices of priors. One very powerful way of articulating precise hypotheses is via formal, computational models of cognitive processes, such as those explored in the Bayesian cognitive modeling tradition: see [probmods.org](probmods.org) or [problang.org](problang.org) for examples of this kind of modeling. 
-
+More broadly, the Bayesian approach points the way towards articulating (and rewarding) more precisely specified hypotheses. This can be achieved in a number of ways, such becoming more familiar with the implications of different choices of priors. One very powerful way of articulating precise hypotheses is via formal, computational models of cognitive processes, such as those explored in the Bayesian cognitive modeling tradition: see [probmods.org](probmods.org) or [problang.org](problang.org) for examples of this kind of modeling.

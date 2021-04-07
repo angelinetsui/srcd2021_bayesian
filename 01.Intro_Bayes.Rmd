@@ -18,8 +18,8 @@ link-citations: yes
 ```{r, echo=FALSE}
 library(knitr)
 library(tidyverse)
-opts_chunk$set(echo=TRUE, 
-               warning=FALSE, message=FALSE, 
+opts_chunk$set(echo=TRUE,
+               warning=FALSE, message=FALSE,
                cache=FALSE)
 ```
 
@@ -27,7 +27,7 @@ This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com) and
 
 # Introduction and installation of the brms package in R
 
-This short tutorial covers some basic concepts of Bayesian inference. 
+This short tutorial covers some basic concepts of Bayesian inference.
 
 We will use the package `brms` to illstrate some examples of running statistical modes in our workshop. `brms` is based on the probabilistic programming language Stan and you will need to install an underlying C++ compiler. Please follow the instructions [here](https://github.com/paul-buerkner/brms#faq). For Windows, you can install [Rtools](https://cran.r-project.org/bin/windows/Rtools/). For Mac, you need to install Xcode (available from the Mac App Store).
 
@@ -35,9 +35,9 @@ We will use the package `brms` to illstrate some examples of running statistical
 
 By the end of this session, you will have a basic understanding of the following:
 
-* **Probability in the Frequestist vs Probability in the Bayesian world** 
-* **Bayes' Theorem** 
-* **Three important elements of Bayesian statistics: prior, likelihood & posterior** 
+* **Probability in the Frequestist vs Probability in the Bayesian world**
+* **Bayes' Theorem**
+* **Three important elements of Bayesian statistics: prior, likelihood & posterior**
 
 # Probability in the Frequestist vs Probability in the Bayesian world
 
@@ -47,13 +47,13 @@ Philosophers of mathematics and probability divide into two camps when it comes 
 
 ## Probability in the Frequestist world
 
-For a Frequentist, a probability is the *long run relative frequency of events*. For example, if I have a coin which I say the probability of 0.2 that it lands on Heads, what a frequentist takes that to mean is: *if I were to flip this coin many many times, then the relative frequency of the coin landing on Heads will be 20%*. 
+For a Frequentist, a probability is the *long run relative frequency of events*. For example, if I have a coin which I say the probability of 0.2 that it lands on Heads, what a frequentist takes that to mean is: *if I were to flip this coin many many times, then the relative frequency of the coin landing on Heads will be 20%*.
 
 This concept of repeating the events is fundamental to Frequentist Statistics. In the Frequestist world, probability is a long-run concept and it refers to the frequency of events when we repeat the trials many many times. This idea is at the core of why *optional stopping* (where one decides whether or not to collect more data based on the p-value computed on partial sample) is problematic.
 
 Technincal Note: This assumption runs into (philosophical) problems when a Frequentist tries to describe the probability of a singular event: For example, the probability of it raining on April 8, 2021 in Palo Alto, California is a singular event in time. How do we define what counts as a sufficiently similar event? It also has trouble when describing probabilities of probabilities. For example, what is the probability that my special coin has a probability of 0.2 of landing of Heads?
 
-A Frequentist often thinks about distributions of possible *outcomes*. If we were to repeat the process, what outcomes might we expect? 
+A Frequentist often thinks about distributions of possible *outcomes*. If we were to repeat the process, what outcomes might we expect?
 
 ### A distribution over the number of Heads, flipping a coin of probability 0.7 15 times
 
@@ -71,11 +71,11 @@ data.frame(x = possible_outcomes,
 
 ## Probability in the Bayesian world
 
-The Bayesian perspective does not consider repeating identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities. 
+The Bayesian perspective does not consider repeating identical trials (or an identical process) a large number of times. Instead, the Bayesian sees probabilty as a measure of uncertainty about what will come to happen. That is, because we (as scientists, or as agents in the world) do not have perfect information about all of the relevant variables in the world (including interactions of subatomical particles and the like), we cannot say with certainty what will happen in the future, but we can quantify our uncertainty using probabilities.
 
-For example, we can estimate the probability of rain April 8, 2021 in Palo Alto, California using predictive models that encode our scientific knowledge of how whether systems evolve. These in turn might be guided by historical data (a kind of frequentist idea), but they may also include structured, theoretical knowledge about climate and weather. 
+For example, we can estimate the probability of rain April 8, 2021 in Palo Alto, California using predictive models that encode our scientific knowledge of how weather systems evolve. These in turn might be guided by historical data (a kind of frequentist idea), but they may also include structured, theoretical knowledge about climate and weather. 
 
-While it might seem subtle, this move allows the Bayesian to consider concepts that the Frequentist does not consider. For example, the Bayesian can ask "How certain are you that the coin has probability 0.7 of coming up heads?" (For a Frequentist, this would amout to talking about *long run frequencies* of *long run frequencies*.) So while a Frequentist considers distributions over possible outcomes, the Bayesian can also consider distributions over probabilties. 
+While it might seem subtle, this move allows the Bayesian to consider concepts that the Frequentist does not consider. For example, the Bayesian can ask "How certain are you that the coin has probability 0.7 of coming up heads?" (For a Frequentist, this would amout to talking about *long run frequencies* of *long run frequencies*.) So while a Frequentist considers distributions over possible outcomes, the Bayesian can also consider distributions over probabilties.
 
 ### A distribution over the bias (or weight) of a coin (i.e., the probability that the coin will come up Heads)
 
@@ -112,7 +112,7 @@ P(A | B) = P(A & B)/P(B) = 0.12/0.6 = 0.2.
 
 ### Bayes' Theorem
 
-Conditional probability forms the basis of Bayes' Theorem. Let us rearrange some equations. 
+Conditional probability forms the basis of Bayes' Theorem. Let us rearrange some equations.
 
 This is the conditional probability of A, given B.
 $$
@@ -128,9 +128,9 @@ P(B \mid A) = \frac{P(A \cap B)}{P(A)}
 $$
 We can also rewrite the equation and we know that the P(A & B) can be expressed in the following way:
 $$
-P(B \mid A) * {P(A)} = {P(A \cap B)} 
+P(B \mid A) * {P(A)} = {P(A \cap B)}
 $$
-In sum, 
+In sum,
 $$
 {P(A \cap B)} = P(A \mid B) * {P(B)} = P(B \mid A) * {P(A)}
 $$
@@ -185,7 +185,7 @@ A parameter estimation question: What is the underlying population’s propensit
 Let's imagine we collected data from 25 infants and each participant contributes a single, binary response (help or not help). Imagine that 17 out of the 25 help. Numerically, that is `r (17/25)*100`%. But that is just the proportion of kids who help in this study. What can we say about the underlying population's propensity to help? (Or, in theory, how many kids out of the population would help in this context?)
 
 
-Bayes Rule tells us, mathematically, what we should believe about `helpingness` given the data we've observed. 
+Bayes Rule tells us, mathematically, what we should believe about `helpingness` given the data we've observed.
 
 $$
 P(h \mid  d) \propto P(d \mid h) \times P(h)
@@ -218,7 +218,7 @@ data.frame(
 
 ```
 
-Here, all values of $helpingness$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape. 
+Here, all values of $helpingness$ are equally likely a priori. Note that this is not the only prior distribution that we could specify. Perhaps based on the prior literature, we do have an *informed prior* expectation that kids are unlikely to help in this context. Though the numerical details would have to be justified (e.g., by a prior meta-analysis), we could encode this in the prior using a different shape.
 
 ```{r}
 prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
@@ -322,7 +322,7 @@ bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = c(
-    rep("posterior",length(bins)), 
+    rep("posterior",length(bins)),
     rep("prior", length(bins))
     ),
   helpingness = c(bins, bins),
@@ -342,7 +342,7 @@ df_posterior %>%
 
 ```
 
-The posterior distribution encodes the methematically correct beliefs about the parameter given the prior, the likelihood, and the observed data. 
+The posterior distribution encodes the methematically correct beliefs about the parameter given the prior, the likelihood, and the observed data.
 
 We can interrogate the posterior to get answers to our burning scientific questions.
 
@@ -376,7 +376,7 @@ df_posterior %>%
 # 1 - pbeta(0.5, posterior_parameters$shape1, posterior_parameters$shape2)
 ```
 
-Here we see that there is approximately a 96% chance that the parameter is greater than 0.5. 
+Here we see that there is approximately a 96% chance that the parameter is greater than 0.5.
 
 ### What is the most likely range of values? (The *Bayesian Credible Interval*)
 
@@ -384,16 +384,16 @@ When describing posterior distributions, we are often interested in summarizing 
 
 ```{r}
 qbeta(p = c(0.025, 0.975),
-      shape1 = posterior_parameters$shape1, 
+      shape1 = posterior_parameters$shape1,
       shape2 = posterior_parameters$shape2)
 ```
 
-The proper interpretation of this credible interval is to say that there is a 95% chance that the parameter lies between 0.48 and 0.83. 
+The proper interpretation of this credible interval is to say that there is a 95% chance that the parameter lies between 0.48 and 0.83.
 
 
 ## How the prior affects the posterior
 
-Thus far in our running example, we have been assuming the uninformative prior that we articulated above, where we had no substantive (or independently justified) beliefs about the parameter *a priori*. Let's now examine how our posterior inferences would be affected if we had substantive prior beliefs. Let's assume we had meta-analytic data that gave us the prior we showed above, where lower values of the parameter were more likely a priori. 
+Thus far in our running example, we have been assuming the uninformative prior that we articulated above, where we had no substantive (or independently justified) beliefs about the parameter *a priori*. Let's now examine how our posterior inferences would be affected if we had substantive prior beliefs. Let's assume we had meta-analytic data that gave us the prior we showed above, where lower values of the parameter were more likely a priori.
 
 ```{r}
 informed_prior_parameters <- list(shape1 = 2, shape2 = 4) # as shape1 increases, the prior will favor higher numbers; as shape2 increases, the prior will favor lower numbers
@@ -411,15 +411,15 @@ bins <- seq(0.001, 0.999, 0.001)
 
 data.frame(
   src = c(
-    rep("posterior",length(bins)), 
+    rep("posterior",length(bins)),
     rep("prior", length(bins))
     ),
   helpingness = c(bins, bins),
   density = c(
-    dbeta(x = bins, 
+    dbeta(x = bins,
           shape1 = informed_posterior_parameters$shape1,
           shape2 = informed_posterior_parameters$shape2),
-    dbeta(x = bins, 
+    dbeta(x = bins,
           shape1 = informed_prior_parameters$shape1,
           shape2 = informed_prior_parameters$shape2)
   )
@@ -460,7 +460,7 @@ df_posterior_informed %>%
 
 ```{r}
 qbeta(p = c(0.025, 0.975),
-      shape1 = informed_posterior_parameters$shape1, 
+      shape1 = informed_posterior_parameters$shape1,
       shape2 = informed_posterior_parameters$shape2)
 ```
 
