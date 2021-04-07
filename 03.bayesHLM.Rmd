@@ -273,7 +273,7 @@ prior_post_pdf
 cowplot::plot_grid(post_pdf_default, prior_post_pdf, labels = c("Default", "With Prior"))
 
 ```
-The posterior distributions are very similar between the models using default priors and our priors. This is because we had a fairly large sample `r `
+The posterior distributions are very similar between the models using default priors and our priors. This is because we had a fairly large sample. 
 
 ## Step 4: Posterior predictive check
 
