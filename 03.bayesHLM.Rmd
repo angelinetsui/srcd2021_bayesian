@@ -27,22 +27,22 @@ This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), an
 
 # Introduction
 
-This short tutorial covers some basic concepts of mixed-effect models and how to run Bayesian mixed-effect model in R. 
+This short tutorial covers some basic concepts of mixed-effect models and how to run Bayesian mixed-effect models in R. 
 
 ## Learning goals
 
 By the end of this class, you will have a basic understanding of the following:
 
-* **A mixed-effect model** 
-* **The differences between fixed- and random-effect** 
-* **The advantage of running a Bayesian mixed-effect model** 
-* **Running Bayesian mixed-effect model using brms in R** 
+* **What is a mixed-effect model** 
+* **The differences between fixed- and random-effects** 
+* **The advantage of running a Bayesian mixed-effects model** 
+* **Running Bayesian mixed-effects models using brms in R** 
 
 # Quick overview: Regression 
 
-## What is a regression?
+## What is regression?
 
-We often use a regression to model a relationship between the independent variable $IV_i$ and dependent variable $DV$. For example, a simple form of a linear regression model can be expressed using the following equation:
+We often use regression to model a relationship between the independent variable $IV_i$ and dependent variable $DV$. For example, a simple form of a linear regression model can be expressed using the following equation:
 
 $$
 \text{DV} = \beta_0 + \beta_i{IV_i} + \epsilon 
@@ -91,9 +91,11 @@ In this analysis, let us only focus on the laboratories that used Headturn proce
 
 ```{r}
 mb1_data <- read_csv("https://raw.githubusercontent.com/manybabies/mb1-analysis-public/master/processed_data/03_data_trial_main.csv") %>% 
-            filter(method == "hpp") %>%  #only look at HPP data
-            drop_na(.) %>%  #let us drop NA for simplicity
-            mutate('Language background' = as.factor(ifelse(nae == T, 'North American English', 'non North American English'))) #rename nae for better labeling
+    filter(method == "hpp") %>%  #only look at HPP data
+    drop_na(.) %>%  #let us drop NA for simplicity
+    mutate('Language background' = as.factor(
+      ifelse(nae == T, 'North American English', 'non North American English')
+      )) #rename nae for better labeling
        
 ```
 
@@ -103,11 +105,15 @@ mb1_data <- read_csv("https://raw.githubusercontent.com/manybabies/mb1-analysis-
 Let us look at the data and see infants' preference for IDS over ADS across different age and language backgrounds.
 
 ```{r}
-mb1_data$age_group <- factor(mb1_data$age_group, 
-                             levels = c("3-6 mo", "6-9 mo", "9-12 mo", "12-15 mo")) #fixing the order of age group
-
-mb1_data$trial_type <- factor(mb1_data$trial_type, 
-                             levels = c("IDS", "ADS")) #fixing the order of trial_type an d
+mb1_data %>%
+  mutate(age_group = factor(age_group, 
+                            levels = c("3-6 mo", 
+                                       "6-9 mo", 
+                                       "9-12 mo", 
+                                       "12-15 mo")), #fixing the order of age group
+         trial_type = factor(trial_type, 
+                             levels = c("IDS", "ADS"))
+         ) #fixing the order of trial_type an d
 
 ggplot(data = mb1_data, aes(x = trial_num, y = looking_time, color = trial_type)) +
   geom_point(alpha = 0.03, position = "jitter") +
