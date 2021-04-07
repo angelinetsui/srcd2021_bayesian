@@ -1,5 +1,5 @@
 ---
-title: "Session 3: Bayesian mixed effects regression"
+title: "Session 3: Bayesian mixed-effects model"
 author: 'Angeline Tsui'
 date: '`r Sys.Date()`'
 output:
@@ -20,7 +20,8 @@ link-citations: yes
 library(knitr)
 opts_chunk$set(echo=TRUE, 
                warning=FALSE, message=FALSE, 
-               cache=FALSE)
+               cache=FALSE,
+               width = 10000)
 ```
 
 This document is developed by [Angeline Tsui](mailto:angelinetsui@gmail.com), and all documents can be found [here](https://github.com/angelinetsui/srcd2021_bayesian.git).
@@ -35,7 +36,6 @@ By the end of this class, you will have a basic understanding of the following:
 
 * **A mixed-effect model** 
 * **The differences between fixed- and random-effect** 
-* **The advantage of running a Bayesian mixed-effect model** 
 * **Running Bayesian mixed-effect model using brms in R** 
 
 # Quick overview: Regression 
@@ -49,9 +49,10 @@ $$
 $$
 The $\beta_0$ is the intercept of the regression model, indicating the expected value of $DV$ when all $IV_i$ are zero. To understand the relationship between $DV$ and a particular $IV$, we can examine the regression coefficients: $\beta_i$. The $\beta_i$ indicates how $DV$ change when there is a one unit of change in $IV_i$. Thus, the $\beta_i$ indicates the strength and direction of the relationship between the $DV$ and $IV_i$.
 
-Under the frequentest approach, we determine whether the relationship between the $DV$ and $IV_i$ is statistically significant and also use the regression model to make prediction of the $DV$ value based on specific amount of $IV_i$ values.  
+Under the frequentist approach, we determine whether the relationship between the $DV$ and $IV_i$ is statistically significant and also use the regression model to make prediction of the $DV$ value based on specific amount of $IV_i$ values.  
 
 Typically regression models have several assumptions, they include:
+
 1. Linearity between the $DV$ and $IV_i$
 
 2. Residuals are uncorrelated with one another
@@ -87,13 +88,17 @@ library(tidyverse)
 
 ### Step 2: Data import and cleaning
 
-In this analysis, let us only focus on the laboratories that used Headturn procedure (HPP) with North-American English speaking babies in the analysis for a simple illustration.
+In this analysis, let us only focus on the laboratories that used head-turn preference procedure (HPP) with North-American English speaking babies in the analysis for a simple illustration.
 
 ```{r}
 mb1_data <- read_csv("https://raw.githubusercontent.com/manybabies/mb1-analysis-public/master/processed_data/03_data_trial_main.csv") %>% 
             filter(method == "hpp", 
-                   nae) %>%  #only look at HPP data
-            drop_na(.) 
+                   nae) %>%  #only look at HPP data and nae infants
+            drop_na(.) %>% 
+  mutate(age_group = factor(age_group, 
+                             levels = c("3-6 mo", "6-9 mo", "9-12 mo", "12-15 mo")), #fixing the order of age group
+  trial_type = factor(trial_type, 
+                             levels = c("IDS", "ADS"))) #fixing the order of trial_type an d
 ```
 
 
@@ -102,16 +107,10 @@ mb1_data <- read_csv("https://raw.githubusercontent.com/manybabies/mb1-analysis-
 Let us look at the data and see infants' preference for IDS over ADS across different age and language backgrounds.
 
 ```{r}
-mb1_data$age_group <- factor(mb1_data$age_group, 
-                             levels = c("3-6 mo", "6-9 mo", "9-12 mo", "12-15 mo")) #fixing the order of age group
-
-mb1_data$trial_type <- factor(mb1_data$trial_type, 
-                             levels = c("IDS", "ADS")) #fixing the order of trial_type an d
-
 ggplot(data = mb1_data, aes(x = trial_num, y = looking_time, color = trial_type)) +
   geom_point(alpha = 0.03, position = "jitter") +
   geom_smooth(method = "lm", se = FALSE) +
-  facet_wrap(~age_group, ncol = 3, nrow = 3) +
+  facet_wrap(~age_group, ncol = 4, nrow = 1) +
   ylab("Looking time") +
   xlab("Trial number") + 
   scale_color_manual(values = c("red", "blue")) +
@@ -120,21 +119,17 @@ ggplot(data = mb1_data, aes(x = trial_num, y = looking_time, color = trial_type)
 ```
 
 We can notice a few things:
-1) Older infants tend to look less than younger infants (at least for North American English infants).
 
-2) All infants look less over-time, but older infants appear to have a faster rate of looking time decline than younger infants.
+1. Older infants tend to look less than younger infants (at least for North American English infants).
 
-3) The gap between IDS and ADS is larger for older infants, suggesting that IDS preference is stronger for older infants. 
+2. All infants look less over-time, but older infants appear to have a faster rate of looking time decline than younger infants.
 
-4) North American English infants generally look longer to the the stimuli (North American English speech) than nin North American English infants.
+3. The gap between IDS and ADS is larger for older infants, suggesting that IDS preference is stronger for older infants. 
 
-5) The gap between IDS and ADS is larger for North American English infants in comparison to non North American English infants, suggesting that North American English infants may show stronger IDS preference than non North American English infants.
 
 ### Step 4: Analyzing the data
 
-For simplicity, we focus on the random effects at the infant level (group) in this analysis. Based on the plot above, there are possibilities that infants differ from each other on (i) the magnitude of IDS preference (ii) rate of looking time decline over time. So in the following analyses, we would adopt the "Keep it maximal" approach (Barr et al., 2013) where we will include the maximal random effects structure justified by the design. As a first run, we first include an interaction term between IDS preference and rate of looking time decline as a random slope at the infant group level. However, as noted later, the interaction term cannot be modeled as a random effect because of singularity issue. So we remove the interaction term and only model the two main effects for the magnitude of IDS preference and looking time decline in the following model. 
-
-On the other hand, we will control for the main fixed effects: age in months, trial type (IDS preference), trial number, trial order, language background and gender in the analysis. As these main effects can also interact with the IDS preference (i.e., these factors can influence the magnitude of IDS preference), we will also model the interaction effects of the main fixed-effects and IDS preference as well. 
+For simplicity, we focus on the random effects at the infant level (group) in this analysis. On the other hand, we will control for the interaction between age and IDS preference as a fixed effect. 
 
 In the following model, our DV is a log-transformed looking time following Csibra et al (2016) suggestion as well. 
 
@@ -145,6 +140,7 @@ $$
 \text{age * IDS} + 
 (1 | \text{infant})
 $$
+
 
 First, let's make a model using `lme4::lmer` to show how this would look. 
 
@@ -158,7 +154,7 @@ mb1_data <- mb1_data %>%
 
 
 Freq_model <- lmer(log_look_time ~ center_age_mo * IDS + 
-                     (1 |subid),
+                     (1 |subid_unique),
                    data = mb1_data) 
 
 summary(Freq_model)$coefficients %>%
@@ -183,13 +179,19 @@ Before running a model with prior, let us run the model without the default prio
 
 ```{r}
 Bayes_model_default <- brm(looking_time ~ center_age_mo * IDS + 
-                     (1 |subid),
+                     (1 |subid_unique),
                      family = lognormal(),
                      data = mb1_data,
                      # extra settings to make things go faster and to save data
+                     warmup = 1000, 
+                     iter = 4000, 
                      cores = 2,
-                     chains = 2,
-                     seed = 123)
+                     chains = 2, 
+                     seed = 123,
+                     save_all_pars = TRUE, 
+                     control = list(adapt_delta = 0.999),
+                     file="mb1_bayes.mod")
+
 
 print(summary(Bayes_model_default), digits = 3)
 ```
@@ -200,13 +202,15 @@ posterior_default <- as.array(Bayes_model_default)
 dim(posterior_default)
 #dimnames(posterior_default) finding the names of the parameters
 
-mcmc_areas(posterior_default,
+post_pdf_default <- mcmc_areas(posterior_default,
            pars = c("b_center_age_mo",
                     "b_IDS",
                     "b_center_age_mo:IDS"), #you can select which parameter(s) you want to plot
            prob = 0.95) + 
-  ggtitle("Posterior distributions", 
+  ggtitle("Posterior distributions(default priors)", 
           "with medians and 95% credit intervals")
+
+post_pdf_default
 
 ```
 This plot shows the densities of four important parameter estimates. For each density, the dark blue line represents the point estimate (median) and light blue area represents the 95% credibility intervals. We can use this to get a sense of which parameter(s) has/have a posterior distribution(s) that does not contain zero and how wide the distribution (flat or pointy). 
@@ -224,19 +228,25 @@ Note that it also tells us the default priors that we were using in the previous
 
 Set up priors like this
 ```{r}
-priors <- c(prior(normal(2, 1), class = Intercept),          
-            prior(normal(2, 0.25), class = b),
+priors <- c(prior(normal(2, 1), class = Intercept), #we expect mean looking time = 2sec as this is the min looking time for the experiment         
+            prior(normal(0, 0.5), class = b),
             prior(normal(0, 1), class = sigma))  
 ```
 
 ```{r}
-Bayes_model_priors <- brm(looking_time ~ center_age_mo * IDS,
+Bayes_model_priors <- brm(looking_time ~ center_age_mo * IDS + 
+                     (1 |subid_unique),
                    family = lognormal(),
                    prior = priors,
                    data = mb1_data,
+                   warmup = 1000, 
+                   iter = 4000, 
                    cores = 2,
                    chains = 2, 
-                   seed = 456)
+                   seed = 456,
+                   save_all_pars = TRUE, 
+                   control = list(adapt_delta = 0.999),
+                   file="mb1_bayes_priors.mod")
 
 print(summary(Bayes_model_priors), digits = 3)
 ```
@@ -248,7 +258,7 @@ posterior_priors <- as.array(Bayes_model_priors)
 dim(posterior_priors)
 #dimnames(posterior_priors) finding the names of the parameters
 
-prior_post <- mcmc_areas(posterior_priors,
+prior_post_pdf <- mcmc_areas(posterior_priors,
            pars = c("b_center_age_mo",
                     "b_IDS",
                     "b_center_age_mo:IDS"), #you can select which parameter(s) you want to plot
@@ -256,9 +266,10 @@ prior_post <- mcmc_areas(posterior_priors,
   ggtitle("Posterior distributions", 
           "with medians and 95% credit intervals")
 
-cowplot::plot_grid(default_post, prior_post, labels = c("Default", "With Prior"))
+prior_post_pdf 
 
-mb1_data_hpp <- length(unique(mb1_data$subid_unique))
+cowplot::plot_grid(post_pdf_default, prior_post_pdf, labels = c("Default", "With Prior"))
+
 ```
 The posterior distributions are very similar between the models using default priors and our priors. This is because we had a fairly large sample `r `
 
@@ -269,7 +280,8 @@ Posterior predictive check allows us to examine how well the model fits the data
 Let us look at the posterior predictive check for the default model:
 
 ```{r}
-pp_check(Bayes_model_default)
+pp_check_default <- pp_check(Bayes_model_default)
+pp_check_default
 ```
 
-This posterior predictive check highlights that there is a lot of censoring in our looking time distribution, which means that our model is describing some aspects of the distribution but not others. So this is an area for future improvement of our  model. 
+This posterior predictive check highlights that there is a lot of censoring in our looking time distribution, which means that our model is describing some aspects of the distribution but not others. So this is an area for future improvement of our model. 
